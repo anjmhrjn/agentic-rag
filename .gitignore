@@ -1,0 +1,56 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+*.log
+
+# Virtual environments
+venv/
+.env/
+.env.* 
+*.venv
+
+# MacOS system files
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Node / frontend (if any)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Jupyter notebooks checkpoints
+.ipynb_checkpoints/
+
+# Hugging Face models / large files
+models/
+embeddings/faiss.index
+embeddings/chunk_meta.json
+
+# Local LLM temp / cache
+llama.cpp/build/
+llama.cpp/*.bin
+*.cache
+*.db
+
+# Logs
+logs/
+*.log
+
+# IDE/editor specific
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Misc
+*.tmp
+*.bak
+*.swp
+notes.txt

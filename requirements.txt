@@ -1,0 +1,9 @@
+llama-cpp-python
+sentence-transformers
+faiss-cpu
+langgraph
+langchain-core
+pydantic
+tqdm
+numpy
+python-frontmatter

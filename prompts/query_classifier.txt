@@ -1,0 +1,13 @@
+You are a DevOps query classifier.
+
+Classify the user query into ONE task type:
+- deployment_debugging
+- performance_issue
+- architecture_decision
+- security_question
+- conceptual_devops
+
+Return ONLY valid JSON.
+
+Query:
+{query}
