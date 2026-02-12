@@ -1,0 +1,611 @@
+[
+  {
+    "question": "Why is PostgreSQL used for billing and order data instead of a NoSQL solution like DynamoDB?",
+    "retrieved_chunks": [
+      {
+        "chunk_id": "KB-008_01",
+        "doc_id": "KB-008",
+        "doc_type": [
+          "architecture",
+          "concept"
+        ],
+        "service": "cloud-retail",
+        "text": "### KB-008: Persistence Layer: Relational vs. Document Storage\n#### Purpose\n\nExplains why different data types are stored in specific database engines.\n\n#### Storage Architecture\n\n- **Relational (PostgreSQL):** Used for Orders and Billing data.\n- **Document (DynamoDB):** Used for Session state and User preferences.\n\n#### Decisions &amp; Reasoning\n\n- **Decision:** Using PostgreSQL for Billing rather than a NoSQL solution.\n- **Reasoning:** Billing requires ACID (Atomicity, Consistency, Isolation, Durability) compliance and complex joins. NoSQL databases prioritize \"Eventual Consistency,\" which can lead to double-billing or lost transactions during high-concurrency events. The relational model provides the strict guarantees necessary for financial data.",
+        "relevance": "relevant"
+      },
+      {
+        "chunk_id": "KB-011_01",
+        "doc_id": "KB-011",
+        "doc_type": [
+          "architecture",
+          "concept"
+        ],
+        "service": "cloud-retail",
+        "text": "### KB-011: Data Partitioning and Sharding Strategies\n#### Purpose\n\nExplains how the \"Cloud Retail\" stack manages large-scale data growth within the persistence layer defined in KB-008.\n\n#### Architecture Description\n\nAs the Inventory and Order databases grow, a single PostgreSQL instance eventually hits I/O and CPU limits. We implement **Horizontal Partitioning (Sharding)** for the Orders table, splitting data across multiple database nodes based on a tenant\\_id or customer\\_id hash.\n\n#### Decisions &amp; Reasoning\n\n- **Decision:** Use Hash-based Sharding rather than Range-based Sharding.\n- **Reasoning:** Range-based sharding (e.g., by date) often creates \"hot shards\"—where the most recent month's shard receives 90% of the traffic while older shards sit idle. Hash-based sharding ensures a statistically even distribution of writes across all nodes, preventing any single database server from becoming a performance bottleneck during peak sales events.\n- **Decision:** Application-level sharding logic is abstracted through a \"Data Access Layer\" (DAL).\n- **Reasoning:** Hard-coding shard locations into microservices makes the system brittle. By using a DAL, we can re-balance shards or add new nodes without modifying the core business logic of the Order Service (KB-006), significantly reducing the risk of regression during infrastructure expansion.",
+        "relevance": "irrelevant"
+      },
+      {
+        "chunk_id": "KB-051_01",
+        "doc_id": "KB-051",
+        "doc_type": [
+          "postmortem",
+          "incident"
+        ],
+        "service": "order-service",
+        "text": "### KB-051: Postmortem: Billing Table Corruption via Schema Migration\n**Incident ID:** #2025-03-12 | **Impact:** Critical | **Service:** Order Service\n\n#### Incident Summary\n\nBetween 14:15 and 16:30 UTC, the Cloud Retail Billing system experienced 100% service failure following a structural database change to the Orders table. 30% of user transactions resulted in \"Phantom Charges\" or failed persistence due to a column type mismatch.\n\n#### Timeline of Events\n\n- **14:10 UTC:** Automated deployment of v2.4.0 starts, including a schema migration via Liquibase.\n- **14:15 UTC:** Prometheus alerts for order\\_persistence\\_failure\\_rate &gt; 10%.\n- **14:25 UTC:** On-call engineer identifies the issue in PostgreSQL logs: column \"transaction\\_id\" type mismatch.\n- **14:40 UTC:** Manual rollback attempted. Discovery that the rollback script for this specific migration was never tested.\n- **15:30 UTC:** Emergency point-in-time restoration (PITR) initiated (KB-021).\n- **16:30 UTC:** Database restored to 14:05 state; services return to nominal health.\n\n#### What Went Wrong\n\nThe schema migration included a non-additive change that was incompatible with the current running code version. Crucially, the \"Verification and Review Process\" (KB-005) was bypassed for the rollback script because it was considered \"low risk\" metadata.\n\n#### What Went Well\n\nAutomated metrics (KB-013) detected the anomaly within 5 minutes of deployment. The multi-AZ backup strategy (KB-014) ensured that a recent snapshot was available for immediate restoration.\n\n#### Decisions &amp; Reasoning (Long-term Fixes)\n\n- **Decision:** Mandatory \"Tested Rollback\" gate in CI/CD (KB-033, KB-045).\n- **Reasoning:** This incident proved that a forward-only migration strategy is a single point of failure. We now require all PRs containing schema changes to include an automated test that executes the migration AND the rollback in a containerized PostgreSQL environment before approval.\n- **Decision:** Move to \"Additive-Only\" schema changes for mission-critical tables.\n- **Reasoning:** To achieve zero-downtime, we will no longer drop or alter columns in a single step. We will add the new column, dual-write from the application, and only drop the old column in a separate release two weeks later.",
+        "relevance": "irrelevant"
+      },
+      {
+        "chunk_id": "KB-059_01",
+        "doc_id": "KB-059",
+        "doc_type": [
+          "postmortem",
+          "incident"
+        ],
+        "service": "billing-service",
+        "text": "### KB-059: Postmortem: Double-Billing via Postgres Transaction Timeout\n**Incident ID:** #2025-06-12 | **Impact:** High | **Service:** Billing Service\n\n#### Incident Summary\n\nA network hiccup caused a client to retry a \"Charge\" request. Due to a transaction timeout in PostgreSQL, the first charge was committed *after* the second charge was already processed, resulting in double-billing for 142 customers.\n\n#### Decisions &amp; Reasoning\n\n- **Decision:** Implementation of Idempotency Keys (x-idempotency-key) for all billing endpoints.\n- **Reasoning:** Database transactions alone cannot solve network-level retries. An idempotency key ensures that the server recognizes a duplicate request and returns the previous successful result rather than executing the charge twice.",
+        "relevance": "partially relevant"
+      },
+      {
+        "chunk_id": "KB-021_01",
+        "doc_id": "KB-021",
+        "doc_type": [
+          "runbook",
+          "disaster-recovery"
+        ],
+        "service": "postgresql",
+        "text": "### KB-021: Runbook: PostgreSQL RDS Backup and Restoration\n#### Objective\n\nTo provide a fail-safe procedure for restoring the relational persistence layer to a known-good state following data corruption or accidental deletion.\n\n#### When to Use\n\nTriggered when the data integrity of the PostgreSQL instances (KB-008) is compromised or during scheduled disaster recovery drills.\n\n#### Preconditions\n\n- rds:RestoreDBInstanceToPointInTime permissions.\n- Automated backups enabled with at least 7 days of retention.\n\n#### Step-by-Step Instructions\n\n1. **Identify the Recovery Point:** Determine the exact timestamp (UTC) prior to the corruption event. Use the CloudWatch Logs (KB-013) to find the offending transaction.\n2. **Initiate Restore:** Use the AWS CLI to create a new instance from the snapshot:\naws rds restore-db-instance-to-point-in-time --source-db-instance-identifier retail-prod-db --target-db-instance-identifier retail-prod-db-restored --restore-time 2026-01-26T14:00:00Z\n3. **Validate Data:** Once the instance state is Available, run a sample of 100 queries to verify the missing/corrupted records are present.\n4. **Traffic Cutover:** Update the Order Service (KB-006) environment variables to point to the new endpoint and restart the service.\n\n#### Decisions &amp; Reasoning\n\n- **Decision:** We restore to a *new* instance rather than overwriting the existing one.\n- **Reasoning:** Overwriting a database is a destructive, irreversible action. By restoring to a separate instance, we allow for \"Side-by-Side Comparison.\" This ensures that if the restoration fails or the timestamp was slightly off, the original data remains available for further investigation. This minimizes the risk of total data loss during a high-pressure recovery scenario.\n- **Decision:** Mandatory 35-day retention period for production backups.\n- **Reasoning:** Most application-level bugs that cause silent data corruption are not detected immediately. A standard 7-day window is often insufficient for the team to identify the bug, trace the root cause, and initiate a recovery. 35 days provides a significant safety margin, covering a full monthly billing cycle.",
+        "relevance": "irrelevant"
+      }
+    ],
+    "final_answer": "PostgreSQL is used for billing and order data instead of a NoSQL solution like DynamoDB because billing requires ACID compliance and complex joins, which NoSQL databases prioritize \"Eventual Consistency\" over. The relational model provides the strict guarantees necessary for financial data. (KB-008)\nCite: doc_008\n"
+  },
+  {
+    "question": "What is the specific command and flag required to scale the RDS cluster immediately during a high-traffic event?",
+    "retrieved_chunks": [
+      {
+        "chunk_id": "KB-017_01",
+        "doc_id": "KB-017",
+        "doc_type": [
+          "runbook"
+        ],
+        "service": "postgresql",
+        "text": "### KB-017: Runbook: PostgreSQL RDS Cluster Scaling\n#### Objective\n\nProvides step-by-step instructions for increasing database capacity when indexFullness or CPU thresholds are exceeded.\n\n#### When to Use\n\nUse this when the Prometheus alert db\\_cpu\\_high triggers or when preparing for a high-traffic event (e.g., Black Friday).\n\n#### Preconditions\n\n- AWS CLI configured with DatabaseAdmin permissions.\n- The database must be in a Available state.\n\n#### Step-by-Step Instructions\n\n1. Identify the current instance class:\naws rds describe-db-instances --db-instance-identifier retail-prod-db\n2. Apply the new instance type (e.g., moving from db.t3.medium to db.r5.large):\naws rds modify-db-instance --db-instance-identifier retail-prod-db --db-instance-class db.r5.large --apply-immediately\n3. Monitor the \"Status\" field. It will move to modifying.\n\n#### Validation Steps\n\n1. Verify the new class is active:\naws rds describe-db-instances... --query 'DBInstances.DBInstanceClass'\n2. Confirm that the Order Service (KB-006) latency has returned to the baseline (&lt;200ms).\n\n#### Decisions &amp; Reasoning\n\n- **Decision:** Use of --apply-immediately for capacity-related scaling.\n- **Reasoning:** By default, RDS applies changes during the next maintenance window. If we are under active load pressure, we cannot wait for the weekend. While this causes a brief (30-60 second) failover/reboot, it is preferable to a sustained multi-hour slowdown that affects 100% of users.",
+        "relevance": "relevant"
+      },
+      {
+        "chunk_id": "KB-037_01",
+        "doc_id": "KB-037",
+        "doc_type": [
+          "incident",
+          "runbook"
+        ],
+        "service": "postgresql",
+        "text": "### KB-037: Incident Response: Database Connection Pool Exhaustion\n#### Symptoms and Alerts\n\n- **Alert:** rds\\_connection\\_count\\_high (&gt;90% of max\\_connections).\n- **Symptoms:** Order Service (KB-006) returns \"500 Internal Server Error\" with logs stating Too many clients or Connection timed out.\n\n#### Root Cause Analysis\n\nTypically caused by a sudden traffic spike, unoptimized queries holding connections too long, or a \"Connection Leak\" in the application code where connections are not returned to the pool.\n\n#### Resolution Steps\n\n1. **Identify Top Consumers:** Check RDS Performance Insights to see which microservice is hogging connections.\n2. **Emergency Scaling:** Immediately scale the RDS instance class vertically (KB-017) to increase memory and the default connection limit.\n3. **Flush Connections:** If a specific node is misbehaving, restart the pod to force a connection reset:\nkubectl rollout restart deployment/&lt;service-name&gt;\n4. **Application Throttle:** As a last resort, reduce the HPA min-replicas (KB-015) to limit the total number of connection attempts.\n\n#### Decisions &amp; Reasoning\n\n- **Decision:** Prioritize vertical scaling over manually killing SQL sessions.\n- **Reasoning:** Killing sessions in a live database can leave orphaned locks or cause data inconsistency. Vertical scaling is a cleaner, safer \"Brute Force\" method that buys the team time to find the underlying leak without risking data integrity.\n- **Decision:** Setting max\\_connections to 90% of physical capacity as the alert threshold.\n- **Reasoning:** In PostgreSQL, the last 10% of connections should be reserved for administrative access (superusers). Alerting at 90% ensures that SREs can still log in to diagnose the system while it is under duress.",
+        "relevance": "irrelevant"
+      },
+      {
+        "chunk_id": "KB-039_01",
+        "doc_id": "KB-039",
+        "doc_type": [
+          "incident",
+          "runbook"
+        ],
+        "service": "redis",
+        "text": "### KB-039: Incident Response: Redis Cluster Memory Saturation\n#### Symptoms and Alerts\n\n- **Alert:** redis\\_memory\\_usage\\_high (&gt;95%).\n- **Symptoms:** Application latency increases; logs show OOM command not allowed.\n\n#### Root Cause Analysis\n\nLikely due to an unexpected surge in session data or a failure of the eviction policy (KB-012) to clear enough space for new keys.\n\n#### Resolution Steps\n\n1. **Identify Large Keys:** Run redis-cli --bigkeys to find if a single key is consuming excessive memory.\n2. **Manual Flush (Emergency):** If non-critical cache is the culprit, flush the cache (SOP KB-030).\n3. **Scaling:** Increase the node type in ElastiCache to provide more RAM.\n4. **Policy Check:** Verify that the maxmemory-policy is still set to volatile-lru.\n\n#### Decisions &amp; Reasoning\n\n- **Decision:** Vertical scaling (more RAM) is preferred over horizontal scaling (more shards) for immediate relief.\n- **Reasoning:** Resharding a Redis cluster is a heavy operation that can cause a temporary latency spike. Vertical scaling of the underlying instance is faster and ensures that all existing data remains available without relocation overhead.\n- **Decision:** Using volatile-lru as a safety guard.\n- **Reasoning:** If memory hits 100%, Redis must decide what to kill. By targeting only keys with a TTL, we protect our core configuration data from being deleted, which could cause a catastrophic \"System-Wide Configuration Loss\" incident.",
+        "relevance": "partially relevant"
+      },
+      {
+        "chunk_id": "KB-025_01",
+        "doc_id": "KB-025",
+        "doc_type": [
+          "runbook",
+          "disaster-recovery"
+        ],
+        "service": "cloud-retail",
+        "text": "### KB-025: Runbook: Regional Disaster Recovery Failover\n#### Objective\n\nTo shift 100% of global traffic from the primary AWS region to the secondary region in the event of a catastrophic regional outage.\n\n#### When to Use\n\nOnly used when the Primary Region is confirmed to have &gt;50% service degradation as reported by the Health Dashboard.\n\n#### Step-by-Step Instructions\n\n1. **Promote DB:** Move the PostgreSQL Read Replica (KB-014) in the secondary region to \"Primary\" status.\n2. **DNS Shift:** Update the Route 53 Weighted Records to 100 in Region B and 0 in Region A.\n3. **Scale Compute:** Manually increase the EKS worker node count (KB-020) to match the primary region's capacity.\n4. **Purge Cache:** Invalidate the CloudFront CDN (KB-034) to force users to fetch from the new region.\n\n#### Decisions &amp; Reasoning\n\n- **Decision:** The failover is a \"Manual Trigger\" rather than fully automated.\n- **Reasoning:** Automated DNS failover can trigger \"Flapping\" (where traffic bounces back and forth during a brief network hiccup). Given the data consistency risks involved in promoting an asynchronous database replica (KB-014), we require a human \"Go/No-Go\" decision to ensure the failover is truly necessary.\n- **Decision:** Use of \"Warm Standby\" for the database but \"Scale-on-Demand\" for compute.\n- **Reasoning:** Keeping a full-size compute cluster running in a second region 24/7 would double our AWS bill. Databases, however, must be running to receive replication data. This \"Hybrid Standby\" model optimizes for cost while still meeting our 15-minute RTO (KB-014).",
+        "relevance": "irrelevant"
+      },
+      {
+        "chunk_id": "KB-058_01",
+        "doc_id": "KB-058",
+        "doc_type": [
+          "postmortem",
+          "incident"
+        ],
+        "service": "deployment-pipeline",
+        "text": "### KB-058: Postmortem: CI/CD Pipeline Contention Outage\n**Incident ID:** #2025-03-22 | **Impact:** Low | **Service:** Deployment Pipeline\n\n#### Incident Summary\n\nTwo separate feature teams attempted to deploy changes to the Load Balancer (KB-031) simultaneously. This resulted in a Terraform state lock that blocked all deployments for 2 hours.\n\n#### Decisions &amp; Reasoning\n\n- **Decision:** Transition to \"Modular Terraform State\" (One state file per service).\n- **Reasoning:** Using a single \"Global\" state file creates a bottleneck. By splitting the state by service domain (e.g., networking-state, database-state), teams can deploy independently without locking each other out.",
+        "relevance": "irrelevant"
+      }
+    ],
+    "final_answer": "The specific command and flag required to scale the RDS cluster immediately during a high-traffic event is:\n```\naws rds modify-db-instance --db-instance-identifier retail-prod-db --db-instance-class db.r5.large --apply-immediately\n```\nCited doc_id(s): KB-017\n```\nExplanation: \nAccording to KB-017, when the Prometheus alert db_cpu_high triggers or when preparing for a high-traffic event (e.g., Black Friday), we should use the `--apply-immediately` flag to scale the RDS instance class vertically. The command `aws rds modify-db-instance --db-instance-identifier retail-prod-db --db-instance-class db.r5.large --apply-immediately` achieves this. \n\nNote that the `--apply-immediately` flag is used to apply the change immediately, rather than waiting for the next maintenance window. This is crucial during high-traffic events when we cannot afford to wait for the change to take effect."
+  },
+  {
+    "question": "What is the mandatory rotation period for database credentials, and why is there a 24-hour 'grace period' during the process?",
+    "retrieved_chunks": [
+      {
+        "chunk_id": "KB-026_01",
+        "doc_id": "KB-026",
+        "doc_type": [
+          "runbook",
+          "security"
+        ],
+        "service": "cloud-retail",
+        "text": "### KB-026: Runbook: Rotating Database and API Credentials\n#### Objective\n\nTo fulfill the 90-day security rotation requirement established in the Security Architecture (KB-010).\n\n#### Instructions\n\n1. **Stage 1:** Create a \"v2\" secret in AWS Secrets Manager.\n2. **Stage 2:** Update the application pods (KB-018) to use both v1 and v2 simultaneously (if the app supports it) or perform a rolling restart.\n3. **Stage 3:** Confirm the application is successfully using the v2 secret via connection metrics (KB-013).\n4. **Stage 4:** Disable the v1 credential in the source system after a 24-hour buffer.\n\n#### Decisions &amp; Reasoning\n\n- **Decision:** Mandatory 24-hour \"Deprecation Buffer\" for all secrets.\n- **Reasoning:** In complex microservice environments, some background tasks or legacy jobs may not refresh their credentials instantly. By keeping the old secret active for 24 hours, we prevent \"Silent Failure\" of these secondary tasks, providing a window to identify and fix any components that didn't migrate correctly.\n- **Decision:** Automated rotation via Lambda for RDS.\n- **Reasoning:** Human rotation is prone to \"Key Fatigue\" and errors. Automated rotation ensures that rotation *actually happens* every 90 days without relying on an engineer remembering to do it.",
+        "relevance": "relevant"
+      },
+      {
+        "chunk_id": "KB-018_01",
+        "doc_id": "KB-018",
+        "doc_type": [
+          "runbook",
+          "security"
+        ],
+        "service": "cloud-retail",
+        "text": "### KB-018: Runbook: Rotating Service Account Credentials\n#### Objective\n\nTo fulfill the 90-day security rotation requirement established in KB-010.\n\n#### Preconditions\n\n- Access to AWS Secrets Manager.\n- Permissions to restart pods in the production namespace of EKS.\n\n#### Step-by-Step Instructions\n\n1. **Generate New Secret:** Create a new version of the secret in AWS Secrets Manager with a new password.\n2. **Update Deployment:** Trigger a rollout of the microservice to force it to fetch the new secret:\nkubectl rollout restart deployment/order-service -n production\n3. **Verify Old Secret Invalidation:** After 24 hours, manually disable the old password version in the source database.\n\n#### Validation Steps\n\n1. Check pod logs for \"Access Denied\" errors:\nkubectl logs -l app=order-service -f\n2. Confirm successful database connection metrics in Grafana.\n\n#### Decisions &amp; Reasoning\n\n- **Decision:** A 24-hour \"Grace Period\" between updating the secret and invalidating the old one.\n- **Reasoning:** If a legacy background job or an un-restarted pod is still using the old password, immediate invalidation will cause a \"Hard Outage.\" The grace period allows for a safe transition, ensuring all components have successfully migrated before the bridge to the old credential is burnt.",
+        "relevance": "partially relevant"
+      },
+      {
+        "chunk_id": "KB-010_01",
+        "doc_id": "KB-010",
+        "doc_type": [
+          "architecture",
+          "standard"
+        ],
+        "service": "cloud-retail",
+        "text": "### KB-010: Security Architecture: IAM and Secret Management\n#### Purpose\n\nDefines the standards for identity and how sensitive data (API keys, DB passwords) is handled.\n\n#### Identity Strategy\n\nWe follow the \"Principle of Least Privilege\" using AWS IAM Roles for Service Accounts (IRSA). Secrets are never stored in code; they are fetched at runtime from AWS Secrets Manager.\n\n#### Decisions &amp; Reasoning\n\n- **Decision:** Mandatory 90-day rotation for all database credentials.\n- **Reasoning:** In the event of a \"Silent Leak\" (where a key is stolen but not immediately used), rotation limits the \"Window of Vulnerability.\" An attacker has a finite time to use the stolen credentials before they become useless, significantly reducing the potential blast radius of a credential compromise. No secrets ever appear in this knowledge base.",
+        "relevance": "partially relevant"
+      },
+      {
+        "chunk_id": "KB-045_01",
+        "doc_id": "KB-045",
+        "doc_type": [
+          "incident",
+          "runbook"
+        ],
+        "service": "postgresql",
+        "text": "### KB-045: Incident Response: Database Schema Migration Corruption\n#### Symptoms and Alerts\n\n- **Symptoms:** Order Service crashes immediately upon start; logs show column \"X\" does not exist or relation \"Y\" already exists.\n\n#### Impact Assessment\n\nCritical. New pods cannot start, and existing pods may be unable to write to the database.\n\n#### Resolution Steps\n\n1. **Halt CI/CD:** Disable the pipeline (KB-040) to prevent further automated updates.\n2. **Execute Rollback Script:** Run the pre-written Liquibase rollback command (KB-033).\n3. **Manual Verification:** Check the DATABASECHANGELOG table to confirm the migration state.\n4. **Restore if Necessary:** If the rollback fails, initiate a Point-in-Time recovery (KB-021).\n\n#### Decisions &amp; Reasoning\n\n- **Decision:** \"No Migration without a Rollback Script\" policy (KB-033).\n- **Reasoning:** In the heat of an outage, writing a SQL revert script from scratch is error-prone. Requiring it during the PR phase (KB-005) ensures that we have a \"Red Button\" ready to go the moment something breaks.\n- **Decision:** Schema migrations must be additive where possible (e.g., add a column, then drop the old one in a separate release).\n- **Reasoning:** Additive changes are non-breaking for existing code. This allows the system to continue running while the migration is in progress, fulfilling the requirement for Zero-Downtime operations.",
+        "relevance": "irrelevant"
+      },
+      {
+        "chunk_id": "KB-051_01",
+        "doc_id": "KB-051",
+        "doc_type": [
+          "postmortem",
+          "incident"
+        ],
+        "service": "order-service",
+        "text": "### KB-051: Postmortem: Billing Table Corruption via Schema Migration\n**Incident ID:** #2025-03-12 | **Impact:** Critical | **Service:** Order Service\n\n#### Incident Summary\n\nBetween 14:15 and 16:30 UTC, the Cloud Retail Billing system experienced 100% service failure following a structural database change to the Orders table. 30% of user transactions resulted in \"Phantom Charges\" or failed persistence due to a column type mismatch.\n\n#### Timeline of Events\n\n- **14:10 UTC:** Automated deployment of v2.4.0 starts, including a schema migration via Liquibase.\n- **14:15 UTC:** Prometheus alerts for order\\_persistence\\_failure\\_rate &gt; 10%.\n- **14:25 UTC:** On-call engineer identifies the issue in PostgreSQL logs: column \"transaction\\_id\" type mismatch.\n- **14:40 UTC:** Manual rollback attempted. Discovery that the rollback script for this specific migration was never tested.\n- **15:30 UTC:** Emergency point-in-time restoration (PITR) initiated (KB-021).\n- **16:30 UTC:** Database restored to 14:05 state; services return to nominal health.\n\n#### What Went Wrong\n\nThe schema migration included a non-additive change that was incompatible with the current running code version. Crucially, the \"Verification and Review Process\" (KB-005) was bypassed for the rollback script because it was considered \"low risk\" metadata.\n\n#### What Went Well\n\nAutomated metrics (KB-013) detected the anomaly within 5 minutes of deployment. The multi-AZ backup strategy (KB-014) ensured that a recent snapshot was available for immediate restoration.\n\n#### Decisions &amp; Reasoning (Long-term Fixes)\n\n- **Decision:** Mandatory \"Tested Rollback\" gate in CI/CD (KB-033, KB-045).\n- **Reasoning:** This incident proved that a forward-only migration strategy is a single point of failure. We now require all PRs containing schema changes to include an automated test that executes the migration AND the rollback in a containerized PostgreSQL environment before approval.\n- **Decision:** Move to \"Additive-Only\" schema changes for mission-critical tables.\n- **Reasoning:** To achieve zero-downtime, we will no longer drop or alter columns in a single step. We will add the new column, dual-write from the application, and only drop the old column in a separate release two weeks later.",
+        "relevance": "irrelevant"
+      }
+    ],
+    "final_answer": "The mandatory rotation period for database credentials is 90 days, as stated in KB-010: Security Architecture: IAM and Secret Management.\n\nThe 24-hour \"grace period\" is introduced to prevent \"Silent Failure\" of background tasks or legacy jobs that may not refresh their credentials instantly, as explained in KB-026: Runbook: Rotating Database and API Credentials.\n```\nNote: The answer is based on the provided documents and may not reflect the actual practices or policies of the organization. It is recommended to verify the information with the relevant stakeholders before implementing any changes."
+  },
+  {
+    "question": "According to our SemVer standards, what is the difference between a 'Minor' and a 'Patch' update, and which one requires a CHANGELOG entry?",
+    "retrieved_chunks": [
+      {
+        "chunk_id": "KB-004_01",
+        "doc_id": "KB-004",
+        "doc_type": [
+          "standard",
+          "reference"
+        ],
+        "service": null,
+        "text": "### KB-004: Documentation Versioning Rules (SemVer)\n#### Purpose\n\nDefines how changes to the knowledge base are tracked over time.\n\n#### Versioning Tiers\n\nWe follow a simplified Semantic Versioning (SemVer) approach for documents:\n\n- **Major (v1.0 to v2.0):** Complete structural rewrite or a change that renders previous instructions dangerous.\n- **Minor (v1.1 to v1.2):** Addition of new steps, troubleshooting sections, or new components.\n- **Patch (v1.1.1):** Typo fixes, broken link repairs, or formatting adjustments.\n\n#### Decisions &amp; Reasoning\n\n- **Decision:** Every \"Major\" or \"Minor\" change must be accompanied by a CHANGELOG entry at the bottom of the document.\n- **Reasoning:** Without a history of *why* a document changed, engineers may inadvertently revert a critical safety fix added after a past incident. Traceability ensures that the knowledge base accumulates wisdom rather than just data.",
+        "relevance": "relevant"
+      },
+      {
+        "chunk_id": "KB-019_01",
+        "doc_id": "KB-019",
+        "doc_type": [
+          "runbook",
+          "deployment"
+        ],
+        "service": "cloud-retail",
+        "text": "### KB-019: Runbook: Deploying a Service Update via Canary\n#### Objective\n\nDetails the procedure for releasing new code with minimal impact on the user base.\n\n#### When to Use\n\nStandard procedure for all \"Minor\" or \"Major\" application updates (KB-004).\n\n#### Instructions\n\n1. **Deploy Canary:** Create a new deployment with the new image, but only 1 replica.\n2. **Shift Traffic:** Adjust the Load Balancer to route 5% of traffic to the Canary pod.\n3. **Observe:** Monitor the \"Error Rate\" of the Canary vs. the Production pods for 10 minutes.\n4. **Full Rollout:** If error rates are identical, update the main deployment image and scale down the canary.\n\n#### Validation Steps\n\n1. Verify the app\\_version tag in Prometheus shows the new version for 100% of requests.\n2. Confirm no spike in 5xx HTTP responses.\n\n#### Decisions &amp; Reasoning\n\n- **Decision:** Use of a 5% traffic shift for the initial phase.\n- **Reasoning:** 5% is small enough to limit the \"Blast Radius\" of a bad bug (KB-017), but large enough to generate statistically significant data in our monitoring stack. This allows us to \"Fail Fast\" without ruining the experience for the entire customer base.",
+        "relevance": "irrelevant"
+      },
+      {
+        "chunk_id": "KB-022_01",
+        "doc_id": "KB-022",
+        "doc_type": [
+          "runbook",
+          "deployment"
+        ],
+        "service": "cloud-retail",
+        "text": "### KB-022: Runbook: Helm-based Service Deployment and Rollback\n#### Objective\n\nTo standardize the deployment of microservices into the EKS cluster (KB-006) using Helm as the package manager.\n\n#### When to Use\n\nStandard procedure for all application updates as defined in the versioning rules (KB-004).\n\n#### Step-by-Step Instructions\n\n1. **Package Versioning:** Ensure the Chart.yaml version has been incremented according to SemVer (KB-004).\n2. **Deployment:** Execute the upgrade with the atomic flag:\nhelm upgrade --install order-service./charts/order-service --namespace production --atomic --timeout 5m\n3. **Manual Rollback (If needed):** If the release fails health checks (KB-020):\nhelm rollback order-service 1 --namespace production\n\n#### Decisions &amp; Reasoning\n\n- **Decision:** Mandatory use of the --atomic flag during upgrades.\n- **Reasoning:** Without the atomic flag, a failed deployment leaves \"half-finished\" resources in the cluster (e.g., a service pointing to a non-existent pod). The atomic flag treats the deployment as a single transaction; if the pods do not reach a \"Ready\" state within the timeout, Helm automatically triggers a rollback. This ensures the production environment is never left in an inconsistent state.\n- **Decision:** Deployment timeouts are set to 5 minutes.\n- **Reasoning:** A 5-minute window allows sufficient time for the Horizontal Pod Autoscaler (KB-015) to provision new nodes if necessary, without making the CI/CD pipeline feel sluggish. It balances \"System Patience\" with \"Developer Velocity.\"",
+        "relevance": "partially relevant"
+      },
+      {
+        "chunk_id": "KB-016_01",
+        "doc_id": "KB-016",
+        "doc_type": [
+          "runbook",
+          "standard"
+        ],
+        "service": "cloud-retail",
+        "text": "### KB-016: Standard Guidelines for Runbook Execution\n#### Objective\n\nTo ensure that all engineers follow a safe, consistent process when executing manual changes to the production environment.\n\n#### Usage Context\n\nThis \"Meta-Runbook\" should be reviewed by every engineer before they use any specific technical playbook (KB-017 through KB-035).\n\n#### Preconditions\n\n1. Access to the production environment via the Secure Bastion Host.\n2. An active Jira incident or Change Request (CR) number.\n\n#### Instructions\n\n1. **Announce Start:** Post in the #ops-production Slack channel that you are starting the runbook.\n2. **Verify State:** Check the current health of the service via the Grafana Dashboard (KB-013) before making changes.\n3. **Follow Sequentially:** Do not skip steps. If a command fails, stop and consult the \"Troubleshooting\" section of the specific doc.\n4. **Validate Result:** Every runbook includes a \"Validation\" section. You are not finished until the system passes these checks.\n\n#### Decisions &amp; Reasoning\n\n- **Decision:** Mandatory \"Slack Announcement\" for all manual actions.\n- **Reasoning:** In a distributed team, \"Silent Changes\" are the leading cause of incident escalation. If an engineer is scaling a database while another is deploying code, they may inadvertently mask each other's symptoms. Visibility creates a shared \"Mental Model\" of the system state.",
+        "relevance": "irrelevant"
+      },
+      {
+        "chunk_id": "KB-028_01",
+        "doc_id": "KB-028",
+        "doc_type": [
+          "runbook",
+          "deployment"
+        ],
+        "service": "cloud-retail",
+        "text": "### KB-028: Runbook: Managing Application Feature Flags\n#### Objective\n\nTo toggle system functionality (e.g., a new checkout flow) without requiring a full code deployment (KB-019).\n\n#### Step-by-Step Instructions\n\n1. **Access Portal:** Log into the internal Feature Management dashboard.\n2. **Targeting:** Select the \"Retail-Staging\" environment first.\n3. **Toggle:** Flip the flag for enable\\_new\\_search\\_ui to ON.\n4. **Observe:** Check the \"Error Rate\" metric in KB-013 for 5 minutes before applying to Production.\n\n#### Decisions &amp; Reasoning\n\n- **Decision:** Using Feature Flags instead of long-lived git branches.\n- **Reasoning:** Long-lived branches lead to \"Merge Hell,\" where code drifts so far from the main trunk that integration becomes impossible. Feature flags allow us to merge code into main immediately but keep it dormant. This supports \"Continuous Integration\" (KB-001) while still giving the business control over when a feature actually goes live.\n- **Decision:** Flags must have a \"Cleanup Ticket\" created at birth.\n- **Reasoning:** \"Flag Rot\" is a major source of technical debt. If a flag stays in the code for 2 years, it becomes hard to reason about which path the code is actually taking. Mandatory cleanup tickets ensure that once a feature is 100% rolled out, the toggle is removed from the codebase.",
+        "relevance": "irrelevant"
+      }
+    ],
+    "final_answer": "A Minor update is an addition of new steps, troubleshooting sections, or new components, whereas a Patch update is a typo fix, broken link repair, or formatting adjustment.\n\nAccording to KB-004, a \"Minor\" or \"Major\" change must be accompanied by a CHANGELOG entry at the bottom of the document. This ensures that the knowledge base accumulates wisdom rather than just data, and engineers can trace the history of changes to the document.\n"
+  },
+  {
+    "question": "Why is the regional disaster recovery failover process a 'Manual Trigger' rather than being fully automated?",
+    "retrieved_chunks": [
+      {
+        "chunk_id": "KB-014_01",
+        "doc_id": "KB-014",
+        "doc_type": [
+          "architecture",
+          "standard"
+        ],
+        "service": "cloud-retail",
+        "text": "### KB-014: High Availability and Disaster Recovery Strategy\n#### Purpose\n\nDefines the technical requirements for keeping the system online during catastrophic failures.\n\n#### Architecture Description\n\nThe system employs an **Active-Active** configuration across two AWS Regions (e.g., us-east-1 and us-west-2). Traffic is routed via Route 53 latency-based records.\n\n#### Decisions &amp; Reasoning\n\n- **Decision:** Target Recovery Time Objective (RTO) of 15 minutes.\n- **Reasoning:** RTO defines how long the business can tolerate being \"down.\" 15 minutes was chosen because it allows for automated DNS failover and database promotion without requiring manual human intervention for every step, which often takes 60+ minutes under stress.\n- **Decision:** Cross-Region Read Replicas for PostgreSQL.\n- **Reasoning:** Synchronous replication across regions introduces unacceptable latency (physics limits). By using asynchronous read replicas, we ensure that the secondary region has a near-real-time copy of the data. In a regional disaster, we promote the replica to \"Primary.\" The small risk of \"Data Loss\" (measured by RPO) is mitigated by our event-driven architecture (KB-009), where lost events can be re-driven from the SQS queue.",
+        "relevance": "relevant"
+      },
+      {
+        "chunk_id": "KB-025_01",
+        "doc_id": "KB-025",
+        "doc_type": [
+          "runbook",
+          "disaster-recovery"
+        ],
+        "service": "cloud-retail",
+        "text": "### KB-025: Runbook: Regional Disaster Recovery Failover\n#### Objective\n\nTo shift 100% of global traffic from the primary AWS region to the secondary region in the event of a catastrophic regional outage.\n\n#### When to Use\n\nOnly used when the Primary Region is confirmed to have &gt;50% service degradation as reported by the Health Dashboard.\n\n#### Step-by-Step Instructions\n\n1. **Promote DB:** Move the PostgreSQL Read Replica (KB-014) in the secondary region to \"Primary\" status.\n2. **DNS Shift:** Update the Route 53 Weighted Records to 100 in Region B and 0 in Region A.\n3. **Scale Compute:** Manually increase the EKS worker node count (KB-020) to match the primary region's capacity.\n4. **Purge Cache:** Invalidate the CloudFront CDN (KB-034) to force users to fetch from the new region.\n\n#### Decisions &amp; Reasoning\n\n- **Decision:** The failover is a \"Manual Trigger\" rather than fully automated.\n- **Reasoning:** Automated DNS failover can trigger \"Flapping\" (where traffic bounces back and forth during a brief network hiccup). Given the data consistency risks involved in promoting an asynchronous database replica (KB-014), we require a human \"Go/No-Go\" decision to ensure the failover is truly necessary.\n- **Decision:** Use of \"Warm Standby\" for the database but \"Scale-on-Demand\" for compute.\n- **Reasoning:** Keeping a full-size compute cluster running in a second region 24/7 would double our AWS bill. Databases, however, must be running to receive replication data. This \"Hybrid Standby\" model optimizes for cost while still meeting our 15-minute RTO (KB-014).",
+        "relevance": "relevant"
+      },
+      {
+        "chunk_id": "KB-078_01",
+        "doc_id": "KB-078",
+        "doc_type": [
+          "onboarding",
+          "sop"
+        ],
+        "service": "disaster-recovery",
+        "text": "### KB-078: Disaster Recovery Training and Simulation SOP\n#### Purpose\n\nDefines the training requirements for engineers to execute the regional failover defined in KB-025.\n\n#### Training Drills\n\n- **Shadowing:** New engineers must shadow a \"DR Exercise\" before joining the rotation.\n- **GameDays:** Quarterly simulation where we deliberately \"break\" a region in Staging and practice recovery.\n- **Wheel of Misfortune:** Weekly team exercise to walk through a random \"Postmortem\" (Category 4).\n\n#### Decisions &amp; Reasoning\n\n- **Decision:** Quarterly drills are conducted during \"Business Hours.\"\n- **Reasoning:** Most teams run drills at 2 AM to avoid impact. However, the most senior people are asleep and the team is exhausted. By running drills during the day, we ensure that the *process* works when everyone is at their best. If the process is too risky for a daytime drill, it is too risky for a real disaster.\n- **Decision:** Mandatory \"Retrospective\" after every drill.\n- **Reasoning:** A drill that doesn't produce an \"Action Item\" (Category 4) is a missed opportunity. We treat simulations as incidents, ensuring the knowledge base (KB-075) is updated with new findings or missing steps.",
+        "relevance": "irrelevant"
+      },
+      {
+        "chunk_id": "KB-077_01",
+        "doc_id": "KB-077",
+        "doc_type": [
+          "onboarding",
+          "sop"
+        ],
+        "service": "infrastructure",
+        "text": "### KB-077: Infrastructure as Code (IaC) Workflow with Terraform\n#### Purpose\n\nStandardizes how cloud resources are provisioned and modified in the Cloud Retail AWS environment.\n\n#### Workflow Steps\n\n1. **Branch:** Create a branch in the retail-infra repo.\n2. **Plan:** Run terraform plan to see the delta.\n3. **Review:** SRE team verifies the \"Destructive Actions\" in the plan output.\n4. **Apply:** Merging to main triggers an automated terraform apply.\n\n#### Decisions &amp; Reasoning\n\n- **Decision:** Mandatory use of Remote State with State Locking (S3/DynamoDB).\n- **Reasoning:** If two engineers run Terraform simultaneously without locking, the state file can become corrupted, leading to the deletion of active resources. Locking ensures that only one \"Writer\" can modify the environment at a time, protecting the stability of the foundation.\n- **Decision:** \"No Manual Changes\" (ClickOps) policy for production.\n- **Reasoning:** Manual changes in the AWS Console create \"Configuration Drift\" (KB-055). This makes it impossible to reproduce the environment in a second region (KB-014). Forcing all changes through code ensures that our disaster recovery path is always tested and ready.",
+        "relevance": "irrelevant"
+      },
+      {
+        "chunk_id": "KB-056_01",
+        "doc_id": "KB-056",
+        "doc_type": [
+          "postmortem",
+          "incident"
+        ],
+        "service": "global-traffic-management",
+        "text": "### KB-056: Postmortem: Regional Failover Latency Spike\n**Incident ID:** #2025-05-18 | **Impact:** High | **Service:** Global Traffic Management\n\n#### Incident Summary\n\nDuring a regional outage in us-east-1, traffic failover to us-west-2 (KB-025) resulted in a 3.5s latency spike, causing a 40% drop in user conversion for 20 minutes.\n\n#### Timeline of Events\n\n- **12:00 UTC:** Primary region degraded.\n- **12:05 UTC:** Route 53 shifts 100% traffic to Region B.\n- **12:06 UTC:** Region B compute cluster (EKS) enters CPU saturation as it was only at \"Warm Standby\" capacity (20% of prod).\n- **12:15 UTC:** Autoscaler (KB-015) successfully provisions new nodes.\n\n#### Decisions &amp; Reasoning\n\n- **Decision:** Increase \"Warm Standby\" minimum capacity to 50% for Region B.\n- **Reasoning:** The cost-saving decision to keep Region B at 20% capacity was the root cause of the latency spike. 50% capacity ensures that the system can handle the immediate traffic surge while the Horizontal Pod Autoscaler provisions the remaining 50%.",
+        "relevance": "irrelevant"
+      }
+    ],
+    "final_answer": "The regional disaster recovery failover process is a 'Manual Trigger' rather than being fully automated because automated DNS failover can trigger 'Flapping' (where traffic bounces back and forth during a brief network hiccup). Given the data consistency risks involved in promoting an asynchronous database replica (KB-014), we require a human 'Go/No-Go' decision to ensure the failover is truly necessary. (KB-025) [disaster-recovery] [runbook]"
+  },
+  {
+    "question": "How does the 'volatile-lru' eviction policy in Redis protect 'permanent' configuration data during memory saturation?",
+    "retrieved_chunks": [
+      {
+        "chunk_id": "KB-012_01",
+        "doc_id": "KB-012",
+        "doc_type": [
+          "architecture",
+          "standard"
+        ],
+        "service": "cloud-retail",
+        "text": "### KB-012: Caching Layer: Redis Integration and Eviction Policies\n#### Purpose\n\nDetails the performance-tier storage used to reduce latency for the components described in KB-009.\n\n#### Architecture Description\n\nWe utilize Amazon ElastiCache (Redis) as a distributed, in-memory cache for frequently accessed, non-authoritative data, such as product catalog metadata and user session tokens.\n\n#### Decisions &amp; Reasoning\n\n- **Decision:** Use of the volatile-lru (Least Recently Used) eviction policy.\n- **Reasoning:** In an e-commerce environment, some products are \"viral\" while others are rarely viewed. An LRU policy automatically clears out items that haven't been accessed recently to make room for new high-traffic items. By specifying volatile-lru, we ensure that only keys with an expiration time (TTL) are evicted, protecting \"permanent\" configuration data from being accidentally deleted when memory is tight.\n- **Decision:** Mandatory Time-To-Live (TTL) of 60 minutes for all product metadata.\n- **Reasoning:** Caching improves speed but introduces \"Stale Data\" risk. A 60-minute TTL balances performance with accuracy; it ensures that if an inventory count changes in the PostgreSQL source (KB-008), the frontend (KB-006) will be inconsistent for no more than one hour, which is an acceptable business trade-off for the 10x gain in page load speed.",
+        "relevance": "relevant"
+      },
+      {
+        "chunk_id": "KB-039_01",
+        "doc_id": "KB-039",
+        "doc_type": [
+          "incident",
+          "runbook"
+        ],
+        "service": "redis",
+        "text": "### KB-039: Incident Response: Redis Cluster Memory Saturation\n#### Symptoms and Alerts\n\n- **Alert:** redis\\_memory\\_usage\\_high (&gt;95%).\n- **Symptoms:** Application latency increases; logs show OOM command not allowed.\n\n#### Root Cause Analysis\n\nLikely due to an unexpected surge in session data or a failure of the eviction policy (KB-012) to clear enough space for new keys.\n\n#### Resolution Steps\n\n1. **Identify Large Keys:** Run redis-cli --bigkeys to find if a single key is consuming excessive memory.\n2. **Manual Flush (Emergency):** If non-critical cache is the culprit, flush the cache (SOP KB-030).\n3. **Scaling:** Increase the node type in ElastiCache to provide more RAM.\n4. **Policy Check:** Verify that the maxmemory-policy is still set to volatile-lru.\n\n#### Decisions &amp; Reasoning\n\n- **Decision:** Vertical scaling (more RAM) is preferred over horizontal scaling (more shards) for immediate relief.\n- **Reasoning:** Resharding a Redis cluster is a heavy operation that can cause a temporary latency spike. Vertical scaling of the underlying instance is faster and ensures that all existing data remains available without relocation overhead.\n- **Decision:** Using volatile-lru as a safety guard.\n- **Reasoning:** If memory hits 100%, Redis must decide what to kill. By targeting only keys with a TTL, we protect our core configuration data from being deleted, which could cause a catastrophic \"System-Wide Configuration Loss\" incident.",
+        "relevance": "irrelevant"
+      },
+      {
+        "chunk_id": "KB-052_01",
+        "doc_id": "KB-052",
+        "doc_type": [
+          "postmortem",
+          "incident"
+        ],
+        "service": "catalog-service",
+        "text": "### KB-052: Postmortem: Black Friday Redis Cache Exhaustion\n**Incident ID:** #2025-11-27 | **Impact:** High | **Service:** Catalog Service\n\n#### Incident Summary\n\nDuring the Black Friday peak traffic window, the Redis cluster (KB-012) reached 100% memory saturation, leading to a \"Thundering Herd\" effect on the Inventory Database (KB-008).\n\n#### Timeline of Events\n\n- **08:00 UTC:** Traffic spikes to 15x baseline.\n- **08:12 UTC:** Redis memory hits 98%.\n- **08:15 UTC:** Eviction policy begins dropping \"permanent\" configuration keys because they lacked a TTL.\n- **08:20 UTC:** Catalog service latency spikes from 100ms to 4.5s.\n- **09:00 UTC:** Redis cluster scaled vertically (KB-017) and keys re-warmed (KB-030).\n\n#### What Went Wrong\n\nThe Redis cluster was misconfigured with the allkeys-lru eviction policy instead of volatile-lru. This caused the system to delete critical, long-lived application settings when it should have only deleted session-based cache.\n\n#### Decisions &amp; Reasoning\n\n- **Decision:** Standardize on volatile-lru for all production ElastiCache instances.\n- **Reasoning:** Our architecture mixes two types of data: disposable transient cache and semi-permanent config data. allkeys-lru is dangerous because it treats all data as equally disposable. volatile-lru protects keys without a TTL, ensuring that \"System Settings\" are never evicted to make room for temporary product views.\n- **Decision:** Implement \"Cache Reservation\" alerts at 75% memory usage.\n- **Reasoning:** Alerting at 95% left no time for vertical scaling, which takes ~10 minutes. 75% provides the necessary lead time for the platform team to intervene before the eviction policy triggers.",
+        "relevance": "partially relevant"
+      },
+      {
+        "chunk_id": "KB-030_01",
+        "doc_id": "KB-030",
+        "doc_type": [
+          "runbook",
+          "performance"
+        ],
+        "service": "redis",
+        "text": "### KB-030: Runbook: Redis Cache Warm-up and Maintenance\n#### Objective\n\nTo manage the performance-tier storage (KB-012) during scaling events or cluster restarts.\n\n#### When to Use\n\nUse this after a Redis cluster maintenance window or a regional failover (KB-025).\n\n#### Instructions\n\n1. **Identify High-Value Keys:** Use the redis-cli --bigkeys command to identify the top 100 most-accessed items.\n2. **Execute Warm-up Script:** Run the Python utility cache\\_warmer.py to pre-load these items from the PostgreSQL database.\n3. **Monitor Latency:** Observe the Application Load Balancer TargetResponseTime to ensure it stays &lt;200ms.\n\n#### Decisions &amp; Reasoning\n\n- **Decision:** Implementing an active \"Warm-up\" script rather than a \"Cold Start.\"\n- **Reasoning:** A \"Cold Start\" (empty cache) causes a \"Thundering Herd\" problem. Thousands of users hit the Order Service simultaneously, which then hits the PostgreSQL database (KB-008). This can overwhelm the database and cause a secondary outage. Pre-loading the top 100 keys prevents this spike, ensuring a smooth transition during maintenance.\n- **Decision:** Use of a dedicated warm-up service account.\n- **Reasoning:** This allows us to track warm-up traffic separately from real user traffic in our logs (KB-013), making it easier to see if the maintenance process itself is causing system strain.",
+        "relevance": "irrelevant"
+      },
+      {
+        "chunk_id": "KB-060_01",
+        "doc_id": "KB-060",
+        "doc_type": [
+          "postmortem",
+          "incident"
+        ],
+        "service": "cache-layer",
+        "text": "### KB-060: Postmortem: Redis Cold-Start Thundering Herd\n**Incident ID:** #2025-01-14 | **Impact:** Medium | **Service:** Cache Layer\n\n#### Incident Summary\n\nFollowing a Redis cluster upgrade, the system restarted with an empty cache. The resulting 15,000 concurrent SQL queries overwhelmed the Inventory Database, causing a 10-minute platform outage.\n\n#### Decisions &amp; Reasoning\n\n- **Decision:** Mandatory use of the \"Cache Warm-up SOP\" (KB-030).\n- **Reasoning:** High-traffic systems cannot survive a \"Cold Start.\" Pre-loading the top 1% of products into memory before enabling user traffic reduces the DB load by 90% during recovery.",
+        "relevance": "irrelevant"
+      }
+    ],
+    "final_answer": "The 'volatile- lru' eviction policy in Redis protects 'permanent' configuration data during memory saturation by ensuring that only keys with an expiration time (TTL) are evicted. This is stated in KB-012: \"By specifying volatile-lru, we ensure that only keys with an expiration time (TTL) are evicted, protecting 'permanent' configuration data from being accidentally deleted when memory is tight.\" This means that critical, long- lived application settings are not deleted to make room for temporary product views, ensuring the system's stability and integrity.\nCited doc_id(s): KB-012\n"
+  },
+  {
+    "question": "What is the reasoning behind using 'Explicit Ingress' security group rules instead of broad CIDR blocks for microservice connectivity?",
+    "retrieved_chunks": [
+      {
+        "chunk_id": "KB-027_01",
+        "doc_id": "KB-027",
+        "doc_type": [
+          "runbook",
+          "troubleshooting"
+        ],
+        "service": "networking",
+        "text": "### KB-027: Runbook: VPC Connectivity and Peering Troubleshooting\n#### Objective\n\nTo diagnose and repair communication failures between isolated network segments defined in KB-007.\n\n#### Symptoms\n\nConnection Timeout errors between a microservice and the Data Subnet database.\n\n#### Troubleshooting Steps\n\n1. **Check Security Groups:** Verify that the DB Security Group allows ingress on port 5432 from the EKS Worker Node CIDR.\n2. **Analyze Flow Logs:** Use CloudWatch to see if traffic is being REJECTED at the network interface.\n3. **Test Routing:** Verify the Route Table in the Private Subnet includes a route to the Data Subnet.\n\n#### Decisions &amp; Reasoning\n\n- **Decision:** We use \"Explicit Ingress\" rules rather than broad CIDR blocks (e.g., 0.0.0.0/0).\n- **Reasoning:** Broad rules are a security liability. By explicitly white-listing only the EKS Security Group, we ensure that even if an attacker gains access to the VPC (e.g., via a compromised VPN), they cannot reach the database unless they are coming from a trusted application node.\n- **Decision:** Enabling VPC Flow Logs only on \"Metadata Mode.\"\n- **Reasoning:** Full packet capture is extremely expensive and generates petabytes of noise. Metadata mode (Source/Dest IP and Port) provides 95% of the troubleshooting value for 1% of the cost.",
+        "relevance": "relevant"
+      },
+      {
+        "chunk_id": "KB-007_01",
+        "doc_id": "KB-007",
+        "doc_type": [
+          "architecture",
+          "standard"
+        ],
+        "service": "cloud-retail",
+        "text": "### KB-007: Networking Topology: VPC and Subnet Strategy\n#### Purpose\n\nDetails the structural constraints of the network to ensure secure and efficient communication.\n\n#### Layout Description\n\nThe system operates within a Virtual Private Cloud (VPC) divided into three tiers:\n\n1. **Public Subnets:** Housing Load Balancers and NAT Gateways.\n2. **Private Subnets:** Housing the EKS Worker Nodes (Microservices).\n3. **Data Subnets:** Isolated subnets for RDS and Cache layers, with no direct internet egress.\n\n#### Decisions &amp; Reasoning\n\n- **Decision:** Placement of Databases in \"Data Subnets\" with no direct internet access.\n- **Reasoning:** This \"Defense in Depth\" strategy ensures that even if a microservice is compromised, the database is not directly reachable from the internet. Attackers would need to perform complex lateral movement, providing more time for security teams to detect and remediate the breach.",
+        "relevance": "irrelevant"
+      },
+      {
+        "chunk_id": "KB-031_01",
+        "doc_id": "KB-031",
+        "doc_type": [
+          "runbook",
+          "networking"
+        ],
+        "service": "alb",
+        "text": "### KB-031: Runbook: Load Balancer Rule and Routing Updates\n#### Objective\n\nTo modify the path-based routing rules of the Application Load Balancer (ALB).\n\n#### Preconditions\n\n- Updated target group for the new service (KB-006).\n\n#### Step-by-Step Instructions\n\n1. **Edit Listener:** In the ALB console/Terraform, locate the Listener for port 443.\n2. **Add Rule:** Create a new rule: IF Path is /api/v2/* THEN Forward to TargetGroup-v2.\n3. **Priority:** Ensure the new rule has a higher priority than the default /api/* catch-all.\n\n#### Decisions &amp; Reasoning\n\n- **Decision:** Use of Path-based routing instead of Host-based routing for internal APIs.\n- **Reasoning:** Path-based routing (cloudretail.com/orders) allows us to share a single SSL certificate and IP address across multiple microservices. This reduces networking complexity and cost compared to host-based routing (orders.cloudretail.com), which would require a unique certificate and DNS record for every single component.\n- **Decision:** Mandatory \"Negative Priority\" for catch-all rules.\n- **Reasoning:** If the catch-all rule (e.g., /*) has high priority, it will steal traffic from specific service rules. By setting it to the lowest possible priority, we ensure that new services can be safely \"carved out\" of the traffic flow without impacting existing ones.",
+        "relevance": "irrelevant"
+      },
+      {
+        "chunk_id": "KB-076_01",
+        "doc_id": "KB-076",
+        "doc_type": [
+          "onboarding",
+          "sop"
+        ],
+        "service": "security",
+        "text": "### KB-076: Security Onboarding: Compliance and Threat Models\n#### Purpose\n\nIntroduces new engineers to the security posture and regulatory requirements (e.g., PCI-DSS) of the retail platform.\n\n#### Security Standards\n\n- **Encryption:** All data in transit must use TLS 1.2+ (KB-023).\n- **Data Masking:** PII (Personally Identifiable Information) must be redacted in logs.\n- **Auditability:** Every API call to AWS is recorded in CloudTrail.\n\n#### Decisions &amp; Reasoning\n\n- **Decision:** Prohibiting the use of \"Plaintext HTTP\" even for internal traffic.\n- **Reasoning:** While internal traffic is safer than public, a single compromised pod could allow an attacker to \"sniff\" traffic across the cluster. \"Zero Trust\" networking inside the VPC ensures that even if a service is breached, the attacker cannot easily intercept sensitive customer data moving between components.\n- **Decision:** Weekly automated security scans of the container images.\n- **Reasoning:** New vulnerabilities (CVEs) are discovered daily. Waiting for a manual audit is too slow. Automated scans in the pipeline ensure that we never deploy an image with a known \"Critical\" vulnerability, fulfilling our compliance obligations.",
+        "relevance": "irrelevant"
+      },
+      {
+        "chunk_id": "KB-055_01",
+        "doc_id": "KB-055",
+        "doc_type": [
+          "postmortem",
+          "incident"
+        ],
+        "service": "internal-analytics",
+        "text": "### KB-055: Postmortem: VPC Peering Disruption during Network Maintenance\n**Incident ID:** #2024-09-30 | **Impact:** High | **Service:** Internal Analytics\n\n#### Incident Summary\n\nA routine security group update to the Data Subnet (KB-007) accidentally severed the connection between the Analytics VPC and the Production RDS VPC, stopping all real-time financial reporting.\n\n#### What Went Wrong\n\nThe Terraform script (KB-020) used a hard-coded CIDR block that did not account for the overlapping address space introduced by a recent VPC peering expansion.\n\n#### Decisions &amp; Reasoning\n\n- **Decision:** Replace hard-coded CIDRs with \"Security Group Referencing\".\n- **Reasoning:** Hard-coding IP ranges is brittle and leads to the \"Configuration Drift\" seen here. By allowing ingress from sg-analytics-worker instead of 10.0.5.0/24, the network remains secure even if the underlying IP ranges change, reducing the maintenance burden and preventing human-error outages.",
+        "relevance": "irrelevant"
+      }
+    ],
+    "final_answer": "Explicit Ingress rules are used instead of broad CIDR blocks to ensure that even if an attacker gains access to the VPC, they cannot reach the database unless they are coming from a trusted application node. This is a security liability that is mitigated by explicitly white-listing only the EKS Security Group. (KB-027)\n\nUsed doc_id: KB-027\n"
+  },
+  {
+    "question": "What is the procedure for expanding EKS worker nodes, and why must we use Terraform instead of the AWS Console to do it?",
+    "retrieved_chunks": [
+      {
+        "chunk_id": "KB-020_01",
+        "doc_id": "KB-020",
+        "doc_type": [
+          "runbook",
+          "infrastructure"
+        ],
+        "service": "eks",
+        "text": "### KB-020: Runbook: EKS Worker Node Expansion\n#### Objective\n\nManually expanding the compute cluster when the autoscaler (KB-015) reaches its limit.\n\n#### Preconditions\n\n- terraform installed and initialized.\n- AWS IAM permissions for EKS:UpdateNodegroupConfig.\n\n#### Instructions\n\n1. Open the variables.tf file for the infrastructure-as-code repo.\n2. Increase the node\\_group\\_max\\_size from (e.g.) 10 to 15.\n3. Run terraform plan to verify the change.\n4. Run terraform apply.\n\n#### Validation Steps\n\n1. Verify new nodes are \"Ready\":\nkubectl get nodes\n2. Check that \"Pending\" pods are now \"Running.\"\n\n#### Decisions &amp; Reasoning\n\n- **Decision:** Use of Infrastructure as Code (Terraform) rather than the AWS Console.\n- **Reasoning:** Manual changes in the console create \"Configuration Drift.\" If someone later runs a terraform deployment, it might undo the manual scaling, causing a sudden and unexplained capacity drop. By making scaling changes in code, we ensure that the \"Source of Truth\" remains synchronized with reality.",
+        "relevance": "relevant"
+      },
+      {
+        "chunk_id": "KB-024_01",
+        "doc_id": "KB-024",
+        "doc_type": [
+          "runbook",
+          "infrastructure"
+        ],
+        "service": "eks",
+        "text": "### KB-024: Runbook: Amazon EKS Cluster Version Upgrades\n#### Objective\n\nTo safely update the Kubernetes control plane and worker nodes to a newer minor version (e.g., 1.29 to 1.30).\n\n#### When to Use\n\nTriggered quarterly or when a specific Kubernetes version reaches end-of-life (EOL).\n\n#### Instructions\n\n1. **Control Plane Upgrade:** Run aws eks update-cluster-version for the master nodes.\n2. **Node Group Rollout:** Create a new \"Blue\" node group with the updated version.\n3. **Taint and Drain:** Mark the old \"Green\" nodes as unschedulable:\nkubectl drain &lt;node-name&gt; --ignore-daemonsets\n4. **Decommission:** Once all pods have migrated, delete the old node group.\n\n#### Decisions &amp; Reasoning\n\n- **Decision:** Using \"Blue/Green\" node groups rather than in-place upgrades.\n- **Reasoning:** In-place upgrades of worker node AMIs are risky; if a node fails to reboot, capacity drops immediately. By spinning up a completely new node group first, we ensure we have surplus capacity *before* we start killing old nodes. This \"Infrastructure Immobility\" approach reduces the risk of a cluster-wide outage during maintenance.\n- **Decision:** Mandatory 72-hour soak period in the Staging environment.\n- **Reasoning:** Kubernetes upgrades can introduce API deprecations that break specific microservices. A 72-hour window in Staging allows for a full cycle of automated tests and manual verification (KB-005) before we touch the production traffic.",
+        "relevance": "irrelevant"
+      },
+      {
+        "chunk_id": "KB-077_01",
+        "doc_id": "KB-077",
+        "doc_type": [
+          "onboarding",
+          "sop"
+        ],
+        "service": "infrastructure",
+        "text": "### KB-077: Infrastructure as Code (IaC) Workflow with Terraform\n#### Purpose\n\nStandardizes how cloud resources are provisioned and modified in the Cloud Retail AWS environment.\n\n#### Workflow Steps\n\n1. **Branch:** Create a branch in the retail-infra repo.\n2. **Plan:** Run terraform plan to see the delta.\n3. **Review:** SRE team verifies the \"Destructive Actions\" in the plan output.\n4. **Apply:** Merging to main triggers an automated terraform apply.\n\n#### Decisions &amp; Reasoning\n\n- **Decision:** Mandatory use of Remote State with State Locking (S3/DynamoDB).\n- **Reasoning:** If two engineers run Terraform simultaneously without locking, the state file can become corrupted, leading to the deletion of active resources. Locking ensures that only one \"Writer\" can modify the environment at a time, protecting the stability of the foundation.\n- **Decision:** \"No Manual Changes\" (ClickOps) policy for production.\n- **Reasoning:** Manual changes in the AWS Console create \"Configuration Drift\" (KB-055). This makes it impossible to reproduce the environment in a second region (KB-014). Forcing all changes through code ensures that our disaster recovery path is always tested and ready.",
+        "relevance": "relevant"
+      },
+      {
+        "chunk_id": "KB-022_01",
+        "doc_id": "KB-022",
+        "doc_type": [
+          "runbook",
+          "deployment"
+        ],
+        "service": "cloud-retail",
+        "text": "### KB-022: Runbook: Helm-based Service Deployment and Rollback\n#### Objective\n\nTo standardize the deployment of microservices into the EKS cluster (KB-006) using Helm as the package manager.\n\n#### When to Use\n\nStandard procedure for all application updates as defined in the versioning rules (KB-004).\n\n#### Step-by-Step Instructions\n\n1. **Package Versioning:** Ensure the Chart.yaml version has been incremented according to SemVer (KB-004).\n2. **Deployment:** Execute the upgrade with the atomic flag:\nhelm upgrade --install order-service./charts/order-service --namespace production --atomic --timeout 5m\n3. **Manual Rollback (If needed):** If the release fails health checks (KB-020):\nhelm rollback order-service 1 --namespace production\n\n#### Decisions &amp; Reasoning\n\n- **Decision:** Mandatory use of the --atomic flag during upgrades.\n- **Reasoning:** Without the atomic flag, a failed deployment leaves \"half-finished\" resources in the cluster (e.g., a service pointing to a non-existent pod). The atomic flag treats the deployment as a single transaction; if the pods do not reach a \"Ready\" state within the timeout, Helm automatically triggers a rollback. This ensures the production environment is never left in an inconsistent state.\n- **Decision:** Deployment timeouts are set to 5 minutes.\n- **Reasoning:** A 5-minute window allows sufficient time for the Horizontal Pod Autoscaler (KB-015) to provision new nodes if necessary, without making the CI/CD pipeline feel sluggish. It balances \"System Patience\" with \"Developer Velocity.\"",
+        "relevance": "irrelevant"
+      },
+      {
+        "chunk_id": "KB-062_01",
+        "doc_id": "KB-062",
+        "doc_type": [
+          "postmortem",
+          "incident"
+        ],
+        "service": "orchestration-layer",
+        "text": "### KB-062: Postmortem: EKS API Version Incompatibility\n**Incident ID:** #2025-04-05 | **Impact:** High | **Service:** Orchestration Layer\n\n#### Incident Summary\n\nUpdating the EKS Control Plane to version 1.29 (KB-024) caused the Order Service to stop scaling. The root cause was the removal of the v1beta1 HorizontalPodAutoscaler API.\n\n#### Decisions &amp; Reasoning\n\n- **Decision:** Mandatory \"API Deprecation Scan\" in Staging.\n- **Reasoning:** Kubernetes upgrades frequently remove old APIs. We now use pluto or kubent to scan our Helm charts (KB-022) for deprecated versions before any production upgrade is scheduled.",
+        "relevance": "irrelevant"
+      }
+    ],
+    "final_answer": "To expand EKS worker nodes, follow the procedure outlined in KB-020: Runbook: EKS Worker Node Expansion. This involves increasing the node_group_max_size in the variables.tf file, running terraform plan to verify the change, and then running terraform apply.\n\nWe must use Terraform instead of the AWS Console to expand EKS worker nodes because manual changes in the console create \"Configuration Drift.\" If someone later runs a terraform deployment, it might undo the manual scaling, causing a sudden and unexplained capacity drop. By making scaling changes in code, we ensure that the \"Source of Truth\" remains synchronized with reality. (KB-020)\n\nCited doc_id(s): KB-020\n"
+  },
+  {
+    "question": "How does the system handle 'poison pill' messages in SQS queues to prevent consumer services from entering a CrashLoopBackOff?",
+    "retrieved_chunks": [
+      {
+        "chunk_id": "KB-054_01",
+        "doc_id": "KB-054",
+        "doc_type": [
+          "postmortem",
+          "incident"
+        ],
+        "service": "shipping-service",
+        "text": "### KB-054: Postmortem: SQS Poison Pill Consumer Crash Loop\n**Incident ID:** #2025-02-05 | **Impact:** Medium | **Service:** Shipping Service\n\n#### Incident Summary\n\nA single malformed order message containing a null shipping\\_address caused 100% of Shipping Service pods to enter a CrashLoopBackOff state, halting all order fulfillments for 4 hours.\n\n#### Root Cause Analysis\n\nThe Shipping Service lacked a try-catch block around the JSON parsing logic. When the service pulled the malformed message, it crashed. Because the message was not acknowledged, SQS returned it to the queue, causing the next pod to pick it up and crash.\n\n#### Decisions &amp; Reasoning\n\n- **Decision:** Mandatory Dead Letter Queue (DLQ) for all SQS integrations (KB-042).\n- **Reasoning:** This incident was a classic \"Infinite Loop.\" A DLQ acts as a circuit breaker; after 3 failed attempts, SQS moves the message to a side-queue. This allows the system to continue processing valid orders while the \"poison pill\" is isolated for manual inspection.\n- **Decision:** Implementation of Schema Validation (Pydantic/Go-Structs) at the consumer entrance.\n- **Reasoning:** We should fail the message, not the process. Strict validation ensures that malformed data is caught and logged as an error without crashing the container.",
+        "relevance": "relevant"
+      },
+      {
+        "chunk_id": "KB-042_01",
+        "doc_id": "KB-042",
+        "doc_type": [
+          "incident",
+          "runbook"
+        ],
+        "service": "sqs",
+        "text": "### KB-042: Incident Response: SQS Queue Depth Buildup (Bottleneck)\n#### Symptoms and Alerts\n\n- **Alert:** sqs\\_approximate\\_number\\_of\\_messages\\_visible &gt; 10,000.\n- **Symptoms:** Customers report that \"Shipping Confirmation\" emails are taking hours to arrive.\n\n#### Root Cause Analysis\n\nThe consumer service (Shipping Service) is either down, crashing, or processing messages slower than the Order Service is producing them.\n\n#### Resolution Steps\n\n1. **Check Consumer Health:** Check the Shipping Service logs for OutOfMemory or Connection Timeout errors.\n2. **Scale Consumers:** Increase the EKS replica count for the consumer deployment (KB-015).\n3. **Analyze DLQ:** Check the Dead Letter Queue (DLQ) for \"poison pill\" messages that are causing consumers to crash repeatedly.\n4. **Purge (Extreme):** If the messages are non-critical duplicates, purge the queue.\n\n#### Decisions &amp; Reasoning\n\n- **Decision:** Use of a Dead Letter Queue (DLQ) for all asynchronous flows.\n- **Reasoning:** A \"Poison Pill\" (a malformed message) can crash every consumer that picks it up. Without a DLQ, the message stays in the queue and keeps crashing new pods, creating a \"CrashLoopBackOff\" cycle. A DLQ automatically moves failing messages to the side, allowing the rest of the queue to be processed.\n- **Decision:** Horizontal Scaling of consumers as the first reaction.\n- **Reasoning:** If the consumers are healthy but slow, adding more \"workers\" is the fastest way to drain the backlog. This assumes the bottleneck is CPU/Compute and not a downstream database limit.",
+        "relevance": "relevant"
+      },
+      {
+        "chunk_id": "KB-051_01",
+        "doc_id": "KB-051",
+        "doc_type": [
+          "postmortem",
+          "incident"
+        ],
+        "service": "order-service",
+        "text": "### KB-051: Postmortem: Billing Table Corruption via Schema Migration\n**Incident ID:** #2025-03-12 | **Impact:** Critical | **Service:** Order Service\n\n#### Incident Summary\n\nBetween 14:15 and 16:30 UTC, the Cloud Retail Billing system experienced 100% service failure following a structural database change to the Orders table. 30% of user transactions resulted in \"Phantom Charges\" or failed persistence due to a column type mismatch.\n\n#### Timeline of Events\n\n- **14:10 UTC:** Automated deployment of v2.4.0 starts, including a schema migration via Liquibase.\n- **14:15 UTC:** Prometheus alerts for order\\_persistence\\_failure\\_rate &gt; 10%.\n- **14:25 UTC:** On-call engineer identifies the issue in PostgreSQL logs: column \"transaction\\_id\" type mismatch.\n- **14:40 UTC:** Manual rollback attempted. Discovery that the rollback script for this specific migration was never tested.\n- **15:30 UTC:** Emergency point-in-time restoration (PITR) initiated (KB-021).\n- **16:30 UTC:** Database restored to 14:05 state; services return to nominal health.\n\n#### What Went Wrong\n\nThe schema migration included a non-additive change that was incompatible with the current running code version. Crucially, the \"Verification and Review Process\" (KB-005) was bypassed for the rollback script because it was considered \"low risk\" metadata.\n\n#### What Went Well\n\nAutomated metrics (KB-013) detected the anomaly within 5 minutes of deployment. The multi-AZ backup strategy (KB-014) ensured that a recent snapshot was available for immediate restoration.\n\n#### Decisions &amp; Reasoning (Long-term Fixes)\n\n- **Decision:** Mandatory \"Tested Rollback\" gate in CI/CD (KB-033, KB-045).\n- **Reasoning:** This incident proved that a forward-only migration strategy is a single point of failure. We now require all PRs containing schema changes to include an automated test that executes the migration AND the rollback in a containerized PostgreSQL environment before approval.\n- **Decision:** Move to \"Additive-Only\" schema changes for mission-critical tables.\n- **Reasoning:** To achieve zero-downtime, we will no longer drop or alter columns in a single step. We will add the new column, dual-write from the application, and only drop the old column in a separate release two weeks later.",
+        "relevance": "irrelevant"
+      },
+      {
+        "chunk_id": "KB-045_01",
+        "doc_id": "KB-045",
+        "doc_type": [
+          "incident",
+          "runbook"
+        ],
+        "service": "postgresql",
+        "text": "### KB-045: Incident Response: Database Schema Migration Corruption\n#### Symptoms and Alerts\n\n- **Symptoms:** Order Service crashes immediately upon start; logs show column \"X\" does not exist or relation \"Y\" already exists.\n\n#### Impact Assessment\n\nCritical. New pods cannot start, and existing pods may be unable to write to the database.\n\n#### Resolution Steps\n\n1. **Halt CI/CD:** Disable the pipeline (KB-040) to prevent further automated updates.\n2. **Execute Rollback Script:** Run the pre-written Liquibase rollback command (KB-033).\n3. **Manual Verification:** Check the DATABASECHANGELOG table to confirm the migration state.\n4. **Restore if Necessary:** If the rollback fails, initiate a Point-in-Time recovery (KB-021).\n\n#### Decisions &amp; Reasoning\n\n- **Decision:** \"No Migration without a Rollback Script\" policy (KB-033).\n- **Reasoning:** In the heat of an outage, writing a SQL revert script from scratch is error-prone. Requiring it during the PR phase (KB-005) ensures that we have a \"Red Button\" ready to go the moment something breaks.\n- **Decision:** Schema migrations must be additive where possible (e.g., add a column, then drop the old one in a separate release).\n- **Reasoning:** Additive changes are non-breaking for existing code. This allows the system to continue running while the migration is in progress, fulfilling the requirement for Zero-Downtime operations.",
+        "relevance": "irrelevant"
+      },
+      {
+        "chunk_id": "KB-059_01",
+        "doc_id": "KB-059",
+        "doc_type": [
+          "postmortem",
+          "incident"
+        ],
+        "service": "billing-service",
+        "text": "### KB-059: Postmortem: Double-Billing via Postgres Transaction Timeout\n**Incident ID:** #2025-06-12 | **Impact:** High | **Service:** Billing Service\n\n#### Incident Summary\n\nA network hiccup caused a client to retry a \"Charge\" request. Due to a transaction timeout in PostgreSQL, the first charge was committed *after* the second charge was already processed, resulting in double-billing for 142 customers.\n\n#### Decisions &amp; Reasoning\n\n- **Decision:** Implementation of Idempotency Keys (x-idempotency-key) for all billing endpoints.\n- **Reasoning:** Database transactions alone cannot solve network-level retries. An idempotency key ensures that the server recognizes a duplicate request and returns the previous successful result rather than executing the charge twice.",
+        "relevance": "irrelevant"
+      }
+    ],
+    "final_answer": "The system handles 'poison pill' messages in SQS queues by implementing a Dead Letter Queue (DLQ) for all SQS integrations (KB-042). A DLQ acts as a circuit breaker; after 3 failed attempts, SQS moves the message to a side-queue, allowing the system to continue processing valid orders while the 'poison pill' is isolated for manual inspection.\n\nReference: KB-042"
+  },
+  {
+    "question": "What is our target Recovery Time Objective (RTO) for a regional failover, and how is it achieved?",
+    "retrieved_chunks": [
+      {
+        "chunk_id": "KB-014_01",
+        "doc_id": "KB-014",
+        "doc_type": [
+          "architecture",
+          "standard"
+        ],
+        "service": "cloud-retail",
+        "text": "### KB-014: High Availability and Disaster Recovery Strategy\n#### Purpose\n\nDefines the technical requirements for keeping the system online during catastrophic failures.\n\n#### Architecture Description\n\nThe system employs an **Active-Active** configuration across two AWS Regions (e.g., us-east-1 and us-west-2). Traffic is routed via Route 53 latency-based records.\n\n#### Decisions &amp; Reasoning\n\n- **Decision:** Target Recovery Time Objective (RTO) of 15 minutes.\n- **Reasoning:** RTO defines how long the business can tolerate being \"down.\" 15 minutes was chosen because it allows for automated DNS failover and database promotion without requiring manual human intervention for every step, which often takes 60+ minutes under stress.\n- **Decision:** Cross-Region Read Replicas for PostgreSQL.\n- **Reasoning:** Synchronous replication across regions introduces unacceptable latency (physics limits). By using asynchronous read replicas, we ensure that the secondary region has a near-real-time copy of the data. In a regional disaster, we promote the replica to \"Primary.\" The small risk of \"Data Loss\" (measured by RPO) is mitigated by our event-driven architecture (KB-009), where lost events can be re-driven from the SQS queue.",
+        "relevance": "relevant"
+      },
+      {
+        "chunk_id": "KB-025_01",
+        "doc_id": "KB-025",
+        "doc_type": [
+          "runbook",
+          "disaster-recovery"
+        ],
+        "service": "cloud-retail",
+        "text": "### KB-025: Runbook: Regional Disaster Recovery Failover\n#### Objective\n\nTo shift 100% of global traffic from the primary AWS region to the secondary region in the event of a catastrophic regional outage.\n\n#### When to Use\n\nOnly used when the Primary Region is confirmed to have &gt;50% service degradation as reported by the Health Dashboard.\n\n#### Step-by-Step Instructions\n\n1. **Promote DB:** Move the PostgreSQL Read Replica (KB-014) in the secondary region to \"Primary\" status.\n2. **DNS Shift:** Update the Route 53 Weighted Records to 100 in Region B and 0 in Region A.\n3. **Scale Compute:** Manually increase the EKS worker node count (KB-020) to match the primary region's capacity.\n4. **Purge Cache:** Invalidate the CloudFront CDN (KB-034) to force users to fetch from the new region.\n\n#### Decisions &amp; Reasoning\n\n- **Decision:** The failover is a \"Manual Trigger\" rather than fully automated.\n- **Reasoning:** Automated DNS failover can trigger \"Flapping\" (where traffic bounces back and forth during a brief network hiccup). Given the data consistency risks involved in promoting an asynchronous database replica (KB-014), we require a human \"Go/No-Go\" decision to ensure the failover is truly necessary.\n- **Decision:** Use of \"Warm Standby\" for the database but \"Scale-on-Demand\" for compute.\n- **Reasoning:** Keeping a full-size compute cluster running in a second region 24/7 would double our AWS bill. Databases, however, must be running to receive replication data. This \"Hybrid Standby\" model optimizes for cost while still meeting our 15-minute RTO (KB-014).",
+        "relevanve": "partially relevant"
+      },
+      {
+        "chunk_id": "KB-056_01",
+        "doc_id": "KB-056",
+        "doc_type": [
+          "postmortem",
+          "incident"
+        ],
+        "service": "global-traffic-management",
+        "text": "### KB-056: Postmortem: Regional Failover Latency Spike\n**Incident ID:** #2025-05-18 | **Impact:** High | **Service:** Global Traffic Management\n\n#### Incident Summary\n\nDuring a regional outage in us-east-1, traffic failover to us-west-2 (KB-025) resulted in a 3.5s latency spike, causing a 40% drop in user conversion for 20 minutes.\n\n#### Timeline of Events\n\n- **12:00 UTC:** Primary region degraded.\n- **12:05 UTC:** Route 53 shifts 100% traffic to Region B.\n- **12:06 UTC:** Region B compute cluster (EKS) enters CPU saturation as it was only at \"Warm Standby\" capacity (20% of prod).\n- **12:15 UTC:** Autoscaler (KB-015) successfully provisions new nodes.\n\n#### Decisions &amp; Reasoning\n\n- **Decision:** Increase \"Warm Standby\" minimum capacity to 50% for Region B.\n- **Reasoning:** The cost-saving decision to keep Region B at 20% capacity was the root cause of the latency spike. 50% capacity ensures that the system can handle the immediate traffic surge while the Horizontal Pod Autoscaler provisions the remaining 50%.",
+        "relevance": "irrelevant"
+      },
+      {
+        "chunk_id": "KB-058_01",
+        "doc_id": "KB-058",
+        "doc_type": [
+          "postmortem",
+          "incident"
+        ],
+        "service": "deployment-pipeline",
+        "text": "### KB-058: Postmortem: CI/CD Pipeline Contention Outage\n**Incident ID:** #2025-03-22 | **Impact:** Low | **Service:** Deployment Pipeline\n\n#### Incident Summary\n\nTwo separate feature teams attempted to deploy changes to the Load Balancer (KB-031) simultaneously. This resulted in a Terraform state lock that blocked all deployments for 2 hours.\n\n#### Decisions &amp; Reasoning\n\n- **Decision:** Transition to \"Modular Terraform State\" (One state file per service).\n- **Reasoning:** Using a single \"Global\" state file creates a bottleneck. By splitting the state by service domain (e.g., networking-state, database-state), teams can deploy independently without locking each other out.",
+        "relevance": "irrelevant"
+      },
+      {
+        "chunk_id": "KB-078_01",
+        "doc_id": "KB-078",
+        "doc_type": [
+          "onboarding",
+          "sop"
+        ],
+        "service": "disaster-recovery",
+        "text": "### KB-078: Disaster Recovery Training and Simulation SOP\n#### Purpose\n\nDefines the training requirements for engineers to execute the regional failover defined in KB-025.\n\n#### Training Drills\n\n- **Shadowing:** New engineers must shadow a \"DR Exercise\" before joining the rotation.\n- **GameDays:** Quarterly simulation where we deliberately \"break\" a region in Staging and practice recovery.\n- **Wheel of Misfortune:** Weekly team exercise to walk through a random \"Postmortem\" (Category 4).\n\n#### Decisions &amp; Reasoning\n\n- **Decision:** Quarterly drills are conducted during \"Business Hours.\"\n- **Reasoning:** Most teams run drills at 2 AM to avoid impact. However, the most senior people are asleep and the team is exhausted. By running drills during the day, we ensure that the *process* works when everyone is at their best. If the process is too risky for a daytime drill, it is too risky for a real disaster.\n- **Decision:** Mandatory \"Retrospective\" after every drill.\n- **Reasoning:** A drill that doesn't produce an \"Action Item\" (Category 4) is a missed opportunity. We treat simulations as incidents, ensuring the knowledge base (KB-075) is updated with new findings or missing steps.",
+        "relevance": "irrelevant"
+      }
+    ],
+    "final_answer": "Our target Recovery Time Objective (RTO) for a regional failover is 15 minutes. This is achieved through automated DNS failover and database promotion without requiring manual human intervention for every step, which often takes 60+ minutes under stress. (KB-014)\n```\nPlease note that the answer is based on the provided documents and may not reflect the actual implementation or current state of the system. It is recommended to verify the information through other sources or direct communication with the relevant teams."
+  }
+]
