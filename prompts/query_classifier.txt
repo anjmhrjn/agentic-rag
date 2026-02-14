@@ -1,13 +1,20 @@
-You are a DevOps query classifier.
+Classify this DevOps query into 1-4 relevant document types from this list:
+{ALLOWED_DOC_TYPES}
 
-Classify the user query into ONE task type:
-- deployment_debugging
-- performance_issue
-- architecture_decision
-- security_question
-- conceptual_devops
+Examples:
 
-Return ONLY valid JSON.
+Query: "How do I restart the production database?"
+{{"doc_types": ["runbook", "database"]}}
 
-Query:
-{query}
+Query: "What caused the API outage last week?"
+{{"doc_types": ["incident", "postmortem"]}}
+
+Query: "Explain our CI/CD pipeline architecture"
+{{"doc_types": ["architecture", "deployment"]}}
+
+Query: "How to set up monitoring for new services?"
+{{"doc_types": ["observability", "onboarding"]}}
+
+Now classify this query. Output ONLY the JSON object, nothing else:
+
+Query: "{query}"
