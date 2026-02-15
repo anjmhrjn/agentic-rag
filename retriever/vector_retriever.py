@@ -66,3 +66,54 @@ class VectorRetriever:
                 break
         
         return results
+    
+    def retrieve_batch(
+        self, 
+        queries, 
+        top_k = 5,
+        doc_type_filter = None
+    ):
+        q_texts = [self.query_instruction + q for q in queries]
+        q_embs = self.embed_model.encode(q_texts, normalize_embeddings=True).astype("float32")
+        
+        initial_k = top_k * 3 if doc_type_filter else top_k
+        initial_k = min(initial_k, self.index.ntotal)
+        
+        distances, indices = self.index.search(q_embs, initial_k)
+        
+        all_results = []
+        for q_dists, q_indices in zip(distances, indices):
+            results = []
+            for dist, idx in zip(q_dists, q_indices):
+                if idx == -1:
+                    continue
+                
+                chunk = self.meta[idx].copy()
+                
+                if doc_type_filter:
+                    chunk_types = chunk.get("doc_type", [])
+                    if isinstance(chunk_types, str):
+                        chunk_types = [chunk_types]
+                    if not any(dt in doc_type_filter for dt in chunk_types):
+                        continue
+                
+                similarity = 1 - (dist / 2)
+                chunk["similarity_score"] = float(similarity)
+                chunk["distance"] = float(dist)
+                
+                results.append(chunk)
+                
+                if len(results) >= top_k:
+                    break
+            
+            all_results.append(results)
+        
+        return all_results
+
+    def get_relevance_score(self, query, top_k = 5):
+        results = self.retrieve(query, top_k=top_k)
+        if not results:
+            return 0.0
+        
+        avg_score = np.mean([r["similarity_score"] for r in results])
+        return float(avg_score)
