@@ -1,8 +1,8 @@
 ---
 doc_id: KB-001
 doc_type:
-  - concept
-  - standard
+  - process
+  - reference
 service: null
 date: 2024-03-15
 ---

@@ -1,8 +1,8 @@
 ---
 doc_id: KB-024
 doc_type:
-  - runbook
-  - infrastructure
+  - architecture
+  - operations
 service: eks
 date: 2024-03-15
 ---

@@ -1,8 +1,8 @@
 ---
 doc_id: KB-030
 doc_type:
-  - runbook
-  - performance
+  - observability
+  - operations
 service: redis
 date: 2024-03-15
 ---

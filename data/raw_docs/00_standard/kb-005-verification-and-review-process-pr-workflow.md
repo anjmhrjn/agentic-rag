@@ -1,7 +1,6 @@
 ---
 doc_id: KB-005
 doc_type:
-  - standard
   - process
 service: null
 date: 2024-03-15

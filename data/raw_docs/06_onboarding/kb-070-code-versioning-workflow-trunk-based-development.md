@@ -1,8 +1,8 @@
 ---
 doc_id: KB-070
 doc_type:
-  - onboarding
-  - sop
+  - process
+  - reference
 service: version-control
 date: null
 ---

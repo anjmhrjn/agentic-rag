@@ -1,8 +1,7 @@
 ---
 doc_id: KB-060
 doc_type:
-  - postmortem
-  - incident
+  - operations
 service: cache-layer
 date: 2025-01-14
 ---

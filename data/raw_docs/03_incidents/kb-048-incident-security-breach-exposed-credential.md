@@ -1,7 +1,7 @@
 ---
 doc_id: KB-048
 doc_type:
-  - incident
+  - operations
   - security
 service: cloud-retail
 date: 2024-03-15

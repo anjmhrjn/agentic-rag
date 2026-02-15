@@ -1,8 +1,8 @@
 ---
 doc_id: KB-029
 doc_type:
-  - runbook
   - observability
+  - operations
 service: cloud-retail
 date: 2024-03-15
 ---

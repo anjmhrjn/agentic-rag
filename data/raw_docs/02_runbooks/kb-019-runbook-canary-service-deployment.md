@@ -1,8 +1,8 @@
 ---
 doc_id: KB-019
 doc_type:
-  - runbook
-  - deployment
+  - architecture
+  - operations
 service: cloud-retail
 date: 2024-03-15
 ---

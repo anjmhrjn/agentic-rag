@@ -4,16 +4,16 @@ Classify this DevOps query into 1-4 relevant document types from this list:
 Examples:
 
 Query: "How do I restart the production database?"
-{{"doc_types": ["runbook", "database"]}}
+{{"doc_types": ["process", "architecture"]}}
 
 Query: "What caused the API outage last week?"
-{{"doc_types": ["incident", "postmortem"]}}
+{{"doc_types": ["opeartions"]}}
 
 Query: "Explain our CI/CD pipeline architecture"
-{{"doc_types": ["architecture", "deployment"]}}
+{{"doc_types": ["architecture"]}}
 
 Query: "How to set up monitoring for new services?"
-{{"doc_types": ["observability", "onboarding"]}}
+{{"doc_types": ["observability", "reference"]}}
 
 Now classify this query. Output ONLY the JSON object, nothing else:
 

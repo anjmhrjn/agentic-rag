@@ -1,8 +1,8 @@
 ---
 doc_id: KB-033
 doc_type:
-  - runbook
-  - database
+  - architecture
+  - operations
 service: postgresql
 date: 2024-03-15
 ---

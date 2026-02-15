@@ -1,7 +1,7 @@
 ---
 doc_id: KB-002
 doc_type:
-  - standard
+  - process
   - reference
 service: null
 date: 2024-03-15

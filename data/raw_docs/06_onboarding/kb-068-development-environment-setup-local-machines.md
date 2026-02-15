@@ -1,8 +1,8 @@
 ---
 doc_id: KB-068
 doc_type:
-  - onboarding
-  - sop
+  - process
+  - reference
 service: developer-environment
 date: null
 ---

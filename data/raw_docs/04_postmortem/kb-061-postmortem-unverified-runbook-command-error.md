@@ -1,8 +1,7 @@
 ---
 doc_id: KB-061
 doc_type:
-  - postmortem
-  - incident
+  - operations
 service: operations
 date: 2024-06-20
 ---

@@ -1,8 +1,8 @@
 ---
 doc_id: KB-079
 doc_type:
-  - onboarding
-  - sop
+  - process
+  - reference
 service: performance
 date: null
 ---

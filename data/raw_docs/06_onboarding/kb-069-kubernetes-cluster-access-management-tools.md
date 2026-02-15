@@ -1,8 +1,8 @@
 ---
 doc_id: KB-069
 doc_type:
-  - onboarding
-  - sop
+  - process
+  - reference
 service: eks-cluster
 date: null
 ---

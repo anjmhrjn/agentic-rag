@@ -1,8 +1,7 @@
 ---
 doc_id: KB-058
 doc_type:
-  - postmortem
-  - incident
+  - operations
 service: deployment-pipeline
 date: 2025-03-22
 ---

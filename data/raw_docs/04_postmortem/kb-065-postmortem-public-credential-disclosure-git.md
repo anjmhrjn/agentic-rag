@@ -1,8 +1,7 @@
 ---
 doc_id: KB-065
 doc_type:
-  - postmortem
-  - incident
+  - operations
 service: security
 date: 2024-11-03
 ---

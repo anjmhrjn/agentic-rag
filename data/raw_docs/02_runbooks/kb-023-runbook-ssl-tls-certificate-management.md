@@ -1,7 +1,7 @@
 ---
 doc_id: KB-023
 doc_type:
-  - runbook
+  - operations
   - security
 service: networking
 date: 2024-03-15

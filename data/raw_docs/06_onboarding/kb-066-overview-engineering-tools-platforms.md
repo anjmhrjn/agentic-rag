@@ -1,8 +1,8 @@
 ---
 doc_id: KB-066
 doc_type:
-  - onboarding
-  - sop
+  - process
+  - reference
 service: platform
 date: null
 ---

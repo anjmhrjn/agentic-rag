@@ -1,8 +1,7 @@
 ---
 doc_id: KB-021
 doc_type:
-  - runbook
-  - disaster-recovery
+  - operations
 service: postgresql
 date: 2024-03-15
 ---

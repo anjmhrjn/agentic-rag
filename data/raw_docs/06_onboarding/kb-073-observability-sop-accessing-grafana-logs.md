@@ -1,8 +1,8 @@
 ---
 doc_id: KB-073
 doc_type:
-  - onboarding
-  - sop
+  - process
+  - reference
 service: observability
 date: null
 ---

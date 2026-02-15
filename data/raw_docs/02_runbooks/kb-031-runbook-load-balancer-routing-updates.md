@@ -1,8 +1,8 @@
 ---
 doc_id: KB-031
 doc_type:
-  - runbook
-  - networking
+  - architecture
+  - operations
 service: alb
 date: 2024-03-15
 ---

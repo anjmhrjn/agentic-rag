@@ -1,8 +1,7 @@
 ---
 doc_id: KB-050
 doc_type:
-  - incident
-  - disaster-recovery
+  - operations
 service: storage
 date: 2024-03-15
 ---

@@ -1,7 +1,7 @@
 ---
 doc_id: KB-032
 doc_type:
-  - runbook
+  - operations
   - security
 service: iam
 date: 2024-03-15

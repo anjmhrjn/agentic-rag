@@ -1,8 +1,8 @@
 ---
 doc_id: KB-016
 doc_type:
-  - runbook
-  - standard
+  - operations
+  - process
 service: cloud-retail
 date: 2024-03-15
 ---

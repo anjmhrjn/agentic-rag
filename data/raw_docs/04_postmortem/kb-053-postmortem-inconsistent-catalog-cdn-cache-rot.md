@@ -1,8 +1,7 @@
 ---
 doc_id: KB-053
 doc_type:
-  - postmortem
-  - incident
+  - operations
 service: frontend/cloudfront
 date: 2025-01-15
 ---

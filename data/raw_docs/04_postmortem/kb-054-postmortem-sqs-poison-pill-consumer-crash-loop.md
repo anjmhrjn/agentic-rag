@@ -1,8 +1,7 @@
 ---
 doc_id: KB-054
 doc_type:
-  - postmortem
-  - incident
+  - operations
 service: shipping-service
 date: 2025-02-05
 ---

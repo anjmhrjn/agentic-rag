@@ -1,8 +1,7 @@
 ---
 doc_id: KB-062
 doc_type:
-  - postmortem
-  - incident
+  - operations
 service: orchestration-layer
 date: 2025-04-05
 ---

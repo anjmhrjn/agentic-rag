@@ -1,8 +1,7 @@
 ---
 doc_id: KB-036
 doc_type:
-  - incident
-  - standard
+  - operations
   - process
 service: cloud-retail
 date: 2024-03-15

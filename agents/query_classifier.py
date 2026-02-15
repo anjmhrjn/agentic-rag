@@ -2,13 +2,7 @@ import json
 import re
 from llm.local_llm import LocalLLM
 
-ALLOWED_DOC_TYPES = [
-    "architecture", "concept", "database", "deployment",
-    "disaster-recovery", "incident", "infrastructure", "networking",
-    "observability", "onboarding", "performance", "postmortem",
-    "process", "reference", "runbook", "security", "sop",
-    "standard", "troubleshooting"
-]
+ALLOWED_DOC_TYPES = ["operations", "architecture", "reference", "process", "security", "observability"]
 
 class QueryClassifierAgent:
     def __init__(self, model_path):

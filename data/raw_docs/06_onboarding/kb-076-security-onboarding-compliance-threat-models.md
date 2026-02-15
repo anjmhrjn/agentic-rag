@@ -1,8 +1,8 @@
 ---
 doc_id: KB-076
 doc_type:
-  - onboarding
-  - sop
+  - process
+  - reference
 service: security
 date: null
 ---

@@ -1,8 +1,7 @@
 ---
 doc_id: KB-039
 doc_type:
-  - incident
-  - runbook
+  - operations
 service: redis
 date: 2024-03-15
 ---

@@ -1,8 +1,7 @@
 ---
 doc_id: KB-064
 doc_type:
-  - postmortem
-  - incident
+  - operations
 service: order-db
 date: 2024-08-14
 ---

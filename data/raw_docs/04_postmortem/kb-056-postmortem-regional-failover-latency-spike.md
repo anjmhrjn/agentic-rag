@@ -1,8 +1,7 @@
 ---
 doc_id: KB-056
 doc_type:
-  - postmortem
-  - incident
+  - operations
 service: global-traffic-management
 date: 2025-05-18
 ---

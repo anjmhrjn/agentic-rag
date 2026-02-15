@@ -1,8 +1,8 @@
 ---
 doc_id: KB-071
 doc_type:
-  - onboarding
-  - sop
+  - process
+  - reference
 service: cicd-pipeline
 date: null
 ---

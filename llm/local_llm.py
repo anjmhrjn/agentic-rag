@@ -23,6 +23,6 @@ You output only valid JSON.<|eot_id|><|start_header_id|>user<|end_header_id|>
             ],
             response_format={"type": "json_object"},  # Force JSON
             temperature=0.1,
-            max_tokens=256
+            max_tokens=512
         )
         return output["choices"][0]["message"]["content"]

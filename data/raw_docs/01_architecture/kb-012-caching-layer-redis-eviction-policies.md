@@ -2,7 +2,7 @@
 doc_id: KB-012
 doc_type:
   - architecture
-  - standard
+  - process
 service: cloud-retail
 date: 2024-03-15
 ---

@@ -29,10 +29,10 @@ class AdaptiveRAGOrchestrator:
     def _set_thresholds(self):
         """Set thresholds based on knowledge base size"""
         if self.kb_size == "small":  # < 500 docs
-            self.HIGH_CONFIDENCE = 0.60  # Lowered from 0.75
-            self.LOW_CONFIDENCE = 0.35   # Lowered from 0.5
+            self.HIGH_CONFIDENCE = 0.60 
+            self.LOW_CONFIDENCE = 0.35
             self.USE_DOC_TYPE_FILTER = False  # Disabled for small KB
-            self.MIN_SIMILARITY = 0.4    # More lenient
+            self.MIN_SIMILARITY = 0.4
             self.DEFAULT_TOP_K = 5
             
         elif self.kb_size == "medium":  # 500-5000 docs
@@ -62,6 +62,7 @@ class AdaptiveRAGOrchestrator:
         
         doc_types = None
         if use_classifier or self.USE_DOC_TYPE_FILTER:
+            self.USE_DOC_TYPE_FILTER = True
             doc_types = self.classifier.classify(query)
             self.logger.info(f"Classified doc_types: {doc_types}")
         else:
@@ -135,7 +136,7 @@ class AdaptiveRAGOrchestrator:
         Strategy: Retrieve more context, use chain-of-thought.
         """
         self.logger.info(f"Complex query detected - using enhanced retrieval")
-        
+
         if doc_types and self.USE_DOC_TYPE_FILTER:
             context_chunks = self.retriever.retrieve(
                 query,
@@ -266,14 +267,23 @@ class AdaptiveRAGOrchestrator:
         context = self._format_context(chunks)
         
         prompt = f"""<|begin_of_text|><|start_header_id|>system<|end_header_id|>
-You are a DevOps expert assistant. Answer questions based on the provided documentation.
-Be concise and cite sources using [DOC_ID] format.<|eot_id|><|start_header_id|>user<|end_header_id|>
+
+You are a DevOps expert. Answer questions based on documentation.
+Output ONLY valid JSON in this EXACT format:
+{{"answer": "your detailed answer here with [DOC_ID] citations"}}
+
+Do NOT include "type", "id", "question", or any other fields.
+Do NOT repeat the question.
+Only output the JSON object with the "answer" field.<|eot_id|><|start_header_id|>user<|end_header_id|>
+
 Documentation:
 {context}
 
 Question: {query}
 
-Answer the question based on the documentation above. Include relevant doc_ids in your answer.<|eot_id|><|start_header_id|>assistant<|end_header_id|>
+Output format:
+{{"answer": "..."}}
+<|eot_id|><|start_header_id|>assistant<|end_header_id|>
 """
         return prompt
     
@@ -282,21 +292,22 @@ Answer the question based on the documentation above. Include relevant doc_ids i
         context = self._format_context(chunks)
         
         prompt = f"""<|begin_of_text|><|start_header_id|>system<|end_header_id|>
-You are a DevOps expert assistant. For complex questions, break down your reasoning step by step.<|eot_id|><|start_header_id|>user<|end_header_id|>
+
+You are a DevOps expert. For complex questions, provide comprehensive answers.
+Output ONLY valid JSON in this EXACT format:
+{{"answer": "your detailed answer with [DOC_ID] citations"}}
+
+Do NOT include "type", "id", "question", or any other fields.
+Only output the JSON object with the "answer" field.<|eot_id|><|start_header_id|>user<|end_header_id|>
 
 Documentation:
 {context}
 
 Question: {query}
 
-This is a complex question. Please:
-1. Identify the key components of the question
-2. Address each component using the documentation
-3. Synthesize a comprehensive answer
-4. Cite sources using [DOC_ID] format
-
-Think through this step by step:<|eot_id|><|start_header_id|>assistant<|end_header_id|>
-
+Provide a comprehensive answer. Output format:
+{{"answer": "..."}}
+<|eot_id|><|start_header_id|>assistant<|end_header_id|>
 """
         return prompt
     
@@ -322,13 +333,20 @@ Think through this step by step:<|eot_id|><|start_header_id|>assistant<|end_head
         """Build prompt when no context is available"""
         prompt = f"""<|begin_of_text|><|start_header_id|>system<|end_header_id|>
 
-You are a DevOps assistant. No relevant documentation is available for this query.
-Provide a general answer based on DevOps best practices, but clearly state this is not from the knowledge base.<|eot_id|><|start_header_id|>user<|end_header_id|>
+You are a DevOps assistant. No documentation is available.
+Provide general DevOps knowledge.
+Output ONLY valid JSON in this EXACT format:
+{{"answer": "your general answer based on best practices"}}
+
+Do NOT include "type", "id", "question", or any other fields.
+Only output the JSON object with the "answer" field.<|eot_id|><|start_header_id|>user<|end_header_id|>
 
 Question: {query}
 
-Note: No relevant documentation found in the knowledge base. Provide a general answer based on DevOps best practices.<|eot_id|><|start_header_id|>assistant<|end_header_id|>
-
+Note: No relevant documentation found. Provide general answer.
+Output format:
+{{"answer": "..."}}
+<|eot_id|><|start_header_id|>assistant<|end_header_id|>
 """
         return prompt
     
@@ -382,10 +400,10 @@ if __name__ == "__main__":
     
     # Test queries
     test_queries = [
-        "What is the specific command and flag required to scale the RDS cluster immediately during a high-traffic event?",
+        # "What is the specific command and flag required to scale the RDS cluster immediately during a high-traffic event?",
         "Why is PostgreSQL used for billing and order data instead of a NoSQL solution like DynamoDB?",
-        "Explain the difference between blue-green and canary deployments, and when to use each",
-        "What is the best way to cook pasta?"
+        # "Explain the difference between blue-green and canary deployments, and when to use each",
+        # "What is the best way to cook pasta?"
     ]
 
     print("\n" + "="*80)
@@ -419,4 +437,4 @@ if __name__ == "__main__":
         print(f"Strategy: {result['strategy']}")
         print(f"Confidence: {result['confidence']:.3f}")
         print(f"Sources: {result['sources']}")
-        print(f"Answer: {result['answer'][:200]}...")
+        print(f"Answer: {result['answer']}")

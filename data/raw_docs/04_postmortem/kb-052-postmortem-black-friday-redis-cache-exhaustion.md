@@ -1,8 +1,7 @@
 ---
 doc_id: KB-052
 doc_type:
-  - postmortem
-  - incident
+  - operations
 service: catalog-service
 date: 2025-11-27
 ---

@@ -1,8 +1,7 @@
 ---
 doc_id: KB-042
 doc_type:
-  - incident
-  - runbook
+  - operations
 service: sqs
 date: 2024-03-15
 ---

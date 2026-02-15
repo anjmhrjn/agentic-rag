@@ -1,8 +1,7 @@
 ---
 doc_id: KB-025
 doc_type:
-  - runbook
-  - disaster-recovery
+  - operations
 service: cloud-retail
 date: 2024-03-15
 ---

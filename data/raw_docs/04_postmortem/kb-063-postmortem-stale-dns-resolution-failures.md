@@ -1,8 +1,7 @@
 ---
 doc_id: KB-063
 doc_type:
-  - postmortem
-  - incident
+  - operations
 service: network
 date: 2024-10-09
 ---

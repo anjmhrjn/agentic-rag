@@ -1,8 +1,7 @@
 ---
 doc_id: KB-045
 doc_type:
-  - incident
-  - runbook
+  - operations
 service: postgresql
 date: 2024-03-15
 ---

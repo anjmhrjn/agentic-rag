@@ -1,8 +1,7 @@
 ---
 doc_id: KB-044
 doc_type:
-  - incident
-  - runbook
+  - operations
 service: eks
 date: 2024-03-15
 ---

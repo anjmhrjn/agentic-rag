@@ -1,8 +1,8 @@
 ---
 doc_id: KB-080
 doc_type:
-  - onboarding
-  - sop
+  - process
+  - reference
 service: culture
 date: null
 ---

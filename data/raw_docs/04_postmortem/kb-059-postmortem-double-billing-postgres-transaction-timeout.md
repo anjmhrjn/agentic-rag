@@ -1,8 +1,7 @@
 ---
 doc_id: KB-059
 doc_type:
-  - postmortem
-  - incident
+  - operations
 service: billing-service
 date: 2025-06-12
 ---

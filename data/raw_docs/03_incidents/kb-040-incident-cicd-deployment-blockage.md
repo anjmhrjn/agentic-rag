@@ -1,8 +1,7 @@
 ---
 doc_id: KB-040
 doc_type:
-  - incident
-  - runbook
+  - operations
 service: cicd
 date: 2024-03-15
 ---

@@ -2,7 +2,7 @@
 doc_id: KB-006
 doc_type:
   - architecture
-  - concept
+  - reference
 service: cloud-retail
 date: 2024-03-15
 ---

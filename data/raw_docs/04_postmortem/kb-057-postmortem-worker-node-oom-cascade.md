@@ -1,8 +1,7 @@
 ---
 doc_id: KB-057
 doc_type:
-  - postmortem
-  - incident
+  - operations
 service: eks-cluster
 date: 2024-12-01
 ---

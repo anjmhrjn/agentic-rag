@@ -1,8 +1,7 @@
 ---
 doc_id: KB-027
 doc_type:
-  - runbook
-  - troubleshooting
+  - operations
 service: networking
 date: 2024-03-15
 ---

@@ -1,8 +1,7 @@
 ---
 doc_id: KB-038
 doc_type:
-  - incident
-  - runbook
+  - operations
 service: cloud-retail
 date: 2024-03-15
 ---

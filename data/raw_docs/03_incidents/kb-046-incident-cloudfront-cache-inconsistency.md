@@ -1,8 +1,7 @@
 ---
 doc_id: KB-046
 doc_type:
-  - incident
-  - runbook
+  - operations
 service: cloudfront
 date: 2024-03-15
 ---

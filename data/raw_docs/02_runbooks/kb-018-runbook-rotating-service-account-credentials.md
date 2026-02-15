@@ -1,7 +1,7 @@
 ---
 doc_id: KB-018
 doc_type:
-  - runbook
+  - operations
   - security
 service: cloud-retail
 date: 2024-03-15

@@ -1,7 +1,7 @@
 ---
 doc_id: KB-017
 doc_type:
-  - runbook
+  - operations
 service: postgresql
 date: 2024-03-15
 ---

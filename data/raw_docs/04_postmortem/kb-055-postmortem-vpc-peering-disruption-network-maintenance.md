@@ -1,8 +1,7 @@
 ---
 doc_id: KB-055
 doc_type:
-  - postmortem
-  - incident
+  - operations
 service: internal-analytics
 date: 2024-09-30
 ---
