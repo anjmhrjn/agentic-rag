@@ -2,7 +2,9 @@ import logging
 from typing import List, Dict, Optional
 from agents.query_classifier import QueryClassifierAgent
 from agents.query_decomposer import QueryDecomposerAgent
+from agents.answer_evaluator import AnswerEvaluator
 from retriever.vector_retriever import VectorRetriever
+import numpy as np
 from llm.local_llm import LocalLLM
 
 class AdaptiveRAGOrchestrator:
@@ -19,6 +21,7 @@ class AdaptiveRAGOrchestrator:
         llm: LocalLLM,
         kb_size: str = "small", # "small", "medium", "large"
         use_decomposition: bool = True,
+        use_reflection: bool = True,
     ):
         self.classifier = classifier
         self.retriever = retriever
@@ -29,8 +32,14 @@ class AdaptiveRAGOrchestrator:
         if use_decomposition:
             self.decomposer = QueryDecomposerAgent(llm)
 
+        self.use_reflection = use_reflection
+        if use_reflection:
+            self.evaluator = AnswerEvaluator(llm)
+
         self.kb_size = kb_size
         self._set_thresholds()
+
+        self.MAX_RETRIES = 2 if self.use_reflection else 1
     
     def _set_thresholds(self):
         """Set thresholds based on knowledge base size"""
@@ -104,6 +113,8 @@ class AdaptiveRAGOrchestrator:
         
         sub_results = []
         all_sources = []
+        relevance = []
+        all_context_chunks = []
 
         for i, sub_query in enumerate(sub_queries, 1):
             self.logger.info(f"Processing sub-query {i}/{len(sub_queries)}: {sub_query}")
@@ -113,42 +124,109 @@ class AdaptiveRAGOrchestrator:
             if use_classifier or self.USE_DOC_TYPE_FILTER:
                 doc_types = self.classifier.classify(sub_query)
             
-            # Retrieve context for sub-query
-            context_chunks = self.retriever.retrieve(
-                sub_query,
-                top_k=self.DEFAULT_TOP_K,
-                doc_type_filter=doc_types,
-                similarity_threshold=self.MIN_SIMILARITY
-            )
+            sub_result = self._process_sub_query_with_reflection(sub_query, doc_types)
+
+            if sub_result:
+                sub_results.append(sub_result)
+                relevance.append(sub_result.get("relevance", 0.0))
+                all_context_chunks.extend(sub_result.get("chunks", []))
+
+                for source in sub_result['sources']:
+                    if source not in all_sources:
+                        all_sources.append(source)
+        if not sub_results:
+            self.logger.warning("No valid sub-results, falling back")
+            return self._handle_low_confidence(query, None, 0.3)
+        
+        confidence = np.mean(relevance) if len(relevance) > 0 else 0.0
+        final_result = self._synthesize_with_reflection(query, sub_results, all_sources, all_context_chunks, confidence)
+
+        return final_result
+    
+    def _process_sub_query_with_reflection(self, sub_query: str, doc_types: Optional[List[str]]) -> Optional[Dict]:
+        attempt = 0
+        best_result = None
+
+        # Retrieve context for sub-query
+        context_chunks = self.retriever.retrieve(
+            sub_query,
+            top_k=self.DEFAULT_TOP_K,
+            doc_type_filter=doc_types,
+            similarity_threshold=self.MIN_SIMILARITY
+        )
+
+        while attempt < self.MAX_RETRIES:
+            attempt += 1
+            self.logger.info(f"Sub-query generation attempt {attempt}/{self.MAX_RETRIES}")
             
             if context_chunks:
                 # Generate answer for sub-query
                 prompt = self._build_sub_query_prompt(sub_query, context_chunks)
                 answer = self.llm.generate(prompt)
-                
-                sub_results.append({
-                    "sub_query": sub_query,
-                    "answer": answer,
-                    "sources": [c.get("doc_id", "unknown") for c in context_chunks]
-                })
-                
-                # Collect all sources
+                sources = [c.get("doc_id", "unknown") for c in context_chunks]
+
+                sim_score = []
                 for chunk in context_chunks:
-                    doc_id = chunk.get("doc_id", "unknown")
-                    if doc_id not in all_sources:
-                        all_sources.append(doc_id)
+                    sim_score.append(chunk.get("similarity_score", 0.0))
+                relevance = np.mean(sim_score) if len(sim_score) > 0 else 0.0
+
+                if self.use_reflection:
+                    evaluation = self.evaluator.evaluate(sub_query, answer, sources, context_chunks)
+                    
+                    self.logger.info(f"Sub-query quality: {evaluation['quality_score']:.3f}")
+
+                    current_result = {
+                        "sub_query": sub_query,
+                        "answer": answer,
+                        "sources": sources,
+                        "evaluation": evaluation,
+                        "attempts": attempt,
+                        "relevance": relevance,
+                        "chunks": context_chunks,
+                    }
+                    
+                    if not evaluation['needs_regeneration']:
+                        return current_result
+                    
+                    if best_result is None or evaluation['quality_score'] > best_result['evaluation']['quality_score']:
+                        best_result = current_result
+                    
+                    self.logger.warning(f"Sub-query answer quality poor ({evaluation['quality_score']:.3f}), issues: {evaluation['issues']}")
+
+                    if attempt < self.MAX_RETRIES:
+                        context_chunks = self.retriever.retrieve(
+                            sub_query,
+                            top_k=self.DEFAULT_TOP_K + 3,
+                            doc_type_filter=doc_types,
+                            similarity_threshold=max(self.MIN_SIMILARITY - 0.1, 0.3)
+                        )
+                else:
+                    return {
+                        "sub_query": sub_query,
+                        "answer": answer,
+                        "sources": sources,
+                        "attempts": attempt,
+                        "relevance": relevance,
+                        "chunks": context_chunks,
+                    }
+        
+        if best_result:
+            best_result["warning"] = "Sub-query answer quality below threshold"
+            return best_result
+        return None
+                
         
         # Synthesize final answer
-        final_answer = self._synthesize_answers(query, sub_results)
+        # final_answer = self._synthesize_answers(query, sub_results)
         
-        return {
-            "answer": final_answer,
-            "sources": all_sources,
-            "strategy": "decomposed_rag",
-            "confidence": 0.8,  # High confidence for decomposed queries
-            "info": f"Answered via {len(sub_queries)} sub-queries",
-            "sub_results": sub_results  # Include for debugging
-        }
+        # return {
+        #     "answer": final_answer,
+        #     "sources": all_sources,
+        #     "strategy": "decomposed_rag",
+        #     "confidence": np.mean(relevance) if len(relevance) > 0 else 0.0,
+        #     "info": f"Answered via {len(sub_queries)} sub-queries",
+        #     "sub_results": sub_results  # Include for debugging
+        # }
     
     def _build_sub_query_prompt(self, sub_query: str, chunks: List[Dict]) -> str:
         """Build prompt for answering a sub-query"""
@@ -170,10 +248,20 @@ Provide a focused answer. Output format:
 """
         return prompt
     
-    def _synthesize_answers(self, original_query: str, sub_results: List[Dict]) -> str:
+    def _synthesize_with_reflection(
+        self, 
+        original_query: str, 
+        sub_results: List[Dict], 
+        all_sources: List[str], 
+        all_context_chunks: List[Dict],
+        confidence: float
+    ) -> str:
         """
         Synthesize sub-answers into a comprehensive final answer.
         """
+        attempt = 0
+        best_synthesis = None
+
         # Build synthesis prompt
         sub_answers_text = "\n\n".join([
             f"Q: {sr['sub_query']}\nA: {sr['answer']}"
@@ -182,7 +270,7 @@ Provide a focused answer. Output format:
         
         prompt = f"""<|begin_of_text|><|start_header_id|>system<|end_header_id|>
 You are a DevOps expert. Synthesize multiple sub-answers into one comprehensive answer.
-Combine information logically, maintain citations, avoid repetition.
+Combine information logically, maintain all citations, avoid repetition.
 Output ONLY valid JSON: {{"answer": "comprehensive synthesized answer"}}
 <|eot_id|><|start_header_id|>user<|end_header_id|>
 
@@ -196,8 +284,102 @@ Maintain all [DOC_ID] citations. Output format:
 {{"answer": "..."}}
 <|eot_id|><|start_header_id|>assistant<|end_header_id|>
 """
-        answer = self.llm.generate(prompt)
-        return answer
+        while attempt < self.MAX_RETRIES:
+            attempt += 1
+            self.logger.info(f"Synthesis attempt {attempt}/{self.MAX_RETRIES}")
+
+            answer = self.llm.generate(prompt)
+
+            if self.use_reflection:
+                seen_ids = set()
+                unique_chunks = []
+                for chunk in all_context_chunks:
+                    doc_id = chunk.get("doc_id", "")
+                    if doc_id and doc_id not in seen_ids:
+                        seen_ids.add(doc_id)
+                        unique_chunks.append(chunk)
+
+                evaluation = self.evaluator.evaluate(original_query, answer, all_sources, unique_chunks)
+
+                self.logger.info(f"Synthesis quality: {evaluation['quality_score']:.3f}")
+            
+                current_synthesis = {
+                    "answer": answer,
+                    "sources": all_sources,
+                    "strategy": "decomposed_rag",
+                    "confidence": confidence,
+                    "info": f"Answered via {len(sub_results)} sub-queries",
+                    "sub_results": sub_results,
+                    "evaluation": evaluation,
+                    "synthesis_attempts": attempt
+                }
+
+                # If synthesis quality is acceptable, return
+                if not evaluation['needs_regeneration']:
+                    self.logger.info("Synthesis quality acceptable")
+                    return current_synthesis
+                
+                # Store best synthesis
+                if best_synthesis is None or evaluation['quality_score'] > best_synthesis['evaluation']['quality_score']:
+                    best_synthesis = current_synthesis
+                
+                # Quality is poor - modify synthesis prompt for retry
+                self.logger.warning(f"Synthesis quality poor ({evaluation['quality_score']:.3f}), retrying...")
+                
+                if attempt < self.MAX_RETRIES:
+                    # Add guidance based on issues
+                    issues_text = "; ".join(evaluation['issues'])
+                    prompt = f"""<|begin_of_text|><|start_header_id|>system<|end_header_id|>
+You are a DevOps expert. Synthesize multiple sub-answers into one comprehensive answer.
+
+IMPORTANT: Previous synthesis had issues: {issues_text}
+Address these issues in your synthesis.
+
+Rules:
+- Only cite doc_ids that appear in the sub-answers
+- Ensure answer directly addresses the original question
+- Base all claims on the provided sub-answers
+- Combine information logically without repetition
+
+Output ONLY valid JSON: {{"answer": "comprehensive synthesized answer"}}
+<|eot_id|><|start_header_id|>user<|end_header_id|>
+
+Original Question: {original_query}
+
+Sub-answers to synthesize:
+{sub_answers_text}
+
+Synthesize carefully, addressing the issues mentioned. Output format:
+{{"answer": "..."}}
+<|eot_id|><|start_header_id|>assistant<|end_header_id|>
+"""
+            else:
+                # No reflection - return immediately
+                return {
+                    "answer": answer,
+                    "sources": all_sources,
+                    "strategy": "decomposed_rag",
+                    "confidence": confidence,
+                    "info": f"Answered via {len(sub_results)} sub-queries",
+                    "sub_results": sub_results,
+                    "synthesis_attempts": attempt
+                }
+
+        self.logger.warning("Max synthesis retries reached, using best attempt")
+        if best_synthesis:
+            best_synthesis['warning'] = "Synthesis quality below threshold after retries"
+            return best_synthesis
+        
+        # Fallback
+        return {
+            "answer": "Synthesis attempt failed to produce a high-quality answer.",
+            "sources": all_sources,
+            "strategy": "decomposed_rag",
+            "confidence": confidence,
+            "info": f"Answered via {len(sub_results)} sub-queries",
+            "sub_results": sub_results,
+            "warning": "Quality checks failed"
+        }
 
     
     def _handle_low_confidence(
@@ -258,39 +440,54 @@ Maintain all [DOC_ID] citations. Output format:
         """
         self.logger.info(f"Complex query detected - using enhanced retrieval")
 
-        if doc_types and self.USE_DOC_TYPE_FILTER:
-            context_chunks = self.retriever.retrieve(
-                query,
-                top_k=self.DEFAULT_TOP_K + 2,
-                doc_type_filter=doc_types,
-                similarity_threshold=self.MIN_SIMILARITY
-            )
-            
-            # If filtering yields too few results, retry without filter
-            if len(context_chunks) < 3:
-                self.logger.warning(f"Doc_type filter too restrictive ({len(context_chunks)} results), retrying without filter")
-                context_chunks = self.retriever.retrieve(
-                    query,
-                    top_k=self.DEFAULT_TOP_K + 2,
-                    doc_type_filter=None,
-                    similarity_threshold=self.MIN_SIMILARITY
-                )
-        else:
-            # Small KB: No filtering
-            context_chunks = self.retriever.retrieve(
-                query,
-                top_k=self.DEFAULT_TOP_K + 2,
-                doc_type_filter=None,
-                similarity_threshold=self.MIN_SIMILARITY
-            )
+        context_chunks = self.retriever.retrieve(
+            query,
+            top_k=self.DEFAULT_TOP_K + 2,
+            doc_type_filter=doc_types,
+            similarity_threshold=self.MIN_SIMILARITY
+        )
         
         if not context_chunks:
             return self._handle_low_confidence(query, doc_types, relevance)
-        
-        # Use chain-of-thought prompting for complex reasoning
-        prompt = self._build_complex_query_prompt(query, context_chunks)
-        answer = self.llm.generate(prompt)
-        sources = [c.get("doc_id", "unknown") for c in context_chunks]
+
+        attempt = 0
+        while attempt < self.MAX_RETRIES:
+            attempt += 1
+
+            prompt = self._build_complex_query_prompt(query, context_chunks)
+            answer = self.llm.generate(prompt)
+            sources = [c.get("doc_id", "unknown") for c in context_chunks]
+            
+            if self.use_reflection:
+                evaluation = self.evaluator.evaluate(query, answer, sources, context_chunks)
+                
+                if not evaluation['needs_regeneration']:
+                    return {
+                        "answer": answer,
+                        "sources": sources,
+                        "strategy": "complex_rag",
+                        "confidence": relevance,
+                        "info": f"Retrieved {len(context_chunks)} relevant chunks",
+                        "evaluation": evaluation,
+                        "generation_attempts": attempt
+                    }
+                
+                if attempt < self.MAX_RETRIES:
+                    # Retry with even more context
+                    context_chunks = self.retriever.retrieve(
+                        query,
+                        top_k=self.DEFAULT_TOP_K + 5,
+                        doc_type_filter=None,
+                        similarity_threshold=max(self.MIN_SIMILARITY - 0.15, 0.2)
+                    )
+            else:
+                return {
+                    "answer": answer,
+                    "sources": sources,
+                    "strategy": "complex_rag",
+                    "confidence": relevance,
+                    "info": f"Retrieved {len(context_chunks)} relevant chunks"
+                }
         
         return {
             "answer": answer,
@@ -312,40 +509,81 @@ Maintain all [DOC_ID] citations. Output format:
         """
         self.logger.info(f"Standard RAG - High confidence ({relevance:.3f})")
         
-        # Standard retrieval
-        if doc_types and self.USE_DOC_TYPE_FILTER:
-            context_chunks = self.retriever.retrieve(
-                query,
-                top_k=self.DEFAULT_TOP_K,
-                doc_type_filter=doc_types,
-                similarity_threshold=self.MIN_SIMILARITY
-            )
-            
-            # Fallback: If filtered results are too few, remove filter
-            if len(context_chunks) < 2:
-                self.logger.warning(f"Doc_type filter yielded only {len(context_chunks)} results, retrying without filter")
-                context_chunks = self.retriever.retrieve(
-                    query,
-                    top_k=self.DEFAULT_TOP_K,
-                    doc_type_filter=None,
-                    similarity_threshold=self.MIN_SIMILARITY
-                )
-        else:
-            # Small KB or classifier disabled: no filtering
-            context_chunks = self.retriever.retrieve(
-                query,
-                top_k=self.DEFAULT_TOP_K,
-                doc_type_filter=None,
-                similarity_threshold=self.MIN_SIMILARITY
-            )
+        context_chunks = self.retriever.retrieve(
+            query,
+            top_k=self.DEFAULT_TOP_K,
+            doc_type_filter=doc_types,
+            similarity_threshold=self.MIN_SIMILARITY
+        )
         
         if not context_chunks:
             return self._handle_low_confidence(query, doc_types, relevance)
         
-        # Generate answer
-        prompt = self._build_standard_prompt(query, context_chunks)
-        answer = self.llm.generate(prompt)
-        sources = [c.get("doc_id", "unknown") for c in context_chunks]
+        attempt = 0
+        best_result = None
+
+        while attempt < self.MAX_RETRIES:
+            attempt += 1
+            self.logger.info(f"Generation attempt {attempt}/{self.MAX_RETRIES}")
+        
+            # Generate answer
+            prompt = self._build_standard_prompt(query, context_chunks)
+            answer = self.llm.generate(prompt)
+            sources = [c.get("doc_id", "unknown") for c in context_chunks]
+
+            if self.use_reflection:
+                evaluation = self.evaluator.evaluate(query, answer, sources, context_chunks)
+                
+                self.logger.info(f"Quality score: {evaluation['quality_score']:.3f}")
+                
+                # If quality is good enough, return
+                if not evaluation['needs_regeneration']:
+                    self.logger.info("Answer quality acceptable, returning")
+                    return {
+                        "answer": answer,
+                        "sources": sources,
+                        "strategy": "standard_rag",
+                        "confidence": relevance,
+                        "evaluation": evaluation,
+                        "generation_attempts": attempt
+                    }
+                
+                # Store best attempt so far
+                if best_result is None or evaluation['quality_score'] > best_result['evaluation']['quality_score']:
+                    best_result = {
+                        "answer": answer,
+                        "sources": sources,
+                        "strategy": "standard_rag",
+                        "confidence": relevance,
+                        "evaluation": evaluation,
+                        "generation_attempts": attempt
+                    }
+                
+                # Quality is poor - try regeneration with more context
+                self.logger.warning(f"Quality poor ({evaluation['quality_score']:.3f}), issues: {evaluation['issues']}")
+                
+                if attempt < self.MAX_RETRIES:
+                    self.logger.info("Retrieving more context for retry...")
+                    # Retrieve more context for retry
+                    context_chunks = self.retriever.retrieve(
+                        query,
+                        top_k=self.DEFAULT_TOP_K + 3,
+                        doc_type_filter=doc_types,
+                        similarity_threshold=max(self.MIN_SIMILARITY - 0.1, 0.3)
+                    )
+            else:
+                # No reflection - return immediately
+                return {
+                    "answer": answer,
+                    "sources": sources,
+                    "strategy": "standard_rag",
+                    "confidence": relevance
+                }
+        
+        self.logger.warning(f"Max retries reached, returning best attempt")
+        if best_result:
+            best_result["warning"] = "Answer quality below threshold after retries"
+            return best_result
         
         return {
             "answer": answer,
@@ -499,11 +737,12 @@ if __name__ == "__main__":
         retriever=retriever,
         llm=llm,
         kb_size="small",
-        use_decomposition=True
+        use_decomposition=True,
+        use_reflection=False
     )
 
-    # ============= Testing query with query decomposition =============
-    query = "A feature flag has been enabled in production for 18 months. What should happen next and why?"
+    # query = "A feature flag has been enabled in production for 18 months. What should happen next and why?"
+    query = "During a deployment, the canary shows a 0.1 percent increase in errors. Should you proceed? What factors matter?"
     print(f"\n{'='*80}")
     print(f"Query: {query}")
     print(f"{'='*80}\n")
@@ -516,14 +755,28 @@ if __name__ == "__main__":
     print(f"\nAnswer:\n{result['answer']}")
     print(f"\nSources: {result['sources']}")
 
-    if 'sub_results' in result:
-        print(f"\n{'='*80}")
-        print("Sub-query breakdown:")
-        print(f"{'='*80}")
-        for i, sr in enumerate(result['sub_results'], 1):
-            print(f"\n{i}. {sr['sub_query']}")
-            print(f"   Answer: {sr['answer']}")
-            print(f"   Sources: {sr['sources']}")
+    if 'evaluation' in result:
+        eval_data = result['evaluation']
+        print(f"\n📊 Quality Evaluation:")
+        print(f"  Overall Quality: {eval_data['quality_score']:.3f}")
+        print(f"  Citation Score: {eval_data['citation_score']:.3f}")
+        print(f"  Relevance Score: {eval_data['relevance_score']:.3f}")
+        print(f"  Support Score: {eval_data['support_score']:.3f}")
+        print(f"  Generation Attempts: {result.get('generation_attempts', 1)}")
+        
+        if eval_data['issues']:
+            print(f"Issues: {eval_data['issues']}")
+        
+        print(f"  Recommendation: {eval_data['recommendation']}")
+
+    # if 'sub_results' in result:
+    #     print(f"\n{'='*80}")
+    #     print("Sub-query breakdown:")
+    #     print(f"{'='*80}")
+    #     for i, sr in enumerate(result['sub_results'], 1):
+    #         print(f"\n{i}. {sr['sub_query']}")
+    #         print(f"   Answer: {sr['answer']}")
+    #         print(f"   Sources: {sr['sources']}")
 
     
 
