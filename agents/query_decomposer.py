@@ -64,36 +64,49 @@ class QueryDecomposerAgent:
     def _build_decomposition_prompt(self, query: str) -> str:
         """Build prompt for query decomposition"""
         prompt = f"""<|begin_of_text|><|start_header_id|>system<|end_header_id|>
-
 You break complex questions into simpler sub-questions.
 
-Rules:
-- Break multi-part questions into 2-4 focused sub-questions
-- Preserve all temporal context (durations, dates, timeframes)
-- Each sub-question should be standalone and answerable independently
-- Maintain the original intent and context
-- Output ONLY valid JSON in this format: {{"sub_queries": ["question 1", "question 2"]}}
+STRICT RULES:
+1. Each sub-question MUST be fully self-contained with ALL context from the original
+2. NEVER drop specific details (names, numbers, technologies, conditions)
+3. ONLY generate sub-questions that are explicitly asked or directly implied
+4. Do NOT invent new questions that weren't in the original
+5. Cover ALL questions asked in the original - missing one is a failure
+6. Each sub-question must make sense WITHOUT reading the original
+7. Instead of using pronouns like "it", "they", "this", repeat the specific subject in every sub-question
 
-When decomposing:
-- Ask yourself: "What decision is the user trying to make?"
-- Don't add background questions unless the query is truly ambiguous
-- Focus sub-queries on the SPECIFIC situation, not general concepts
+CONTEXT PRESERVATION RULE:
+If original mentions a specific condition or system, every sub-question
+related to it MUST repeat that condition or system explicitly.
 
-Example:
-Query: "Our API response time has doubled over the past 6 weeks. What should we do?"
+BAD EXAMPLE (loses context):
+Original: "Our load balancer is dropping 2 percent of requests during peak hours. Is this normal? How do we fix it?"
+Bad decomposition:
+- "Is a 2 percent drop rate normal?" ← Missing "load balancer" and "peak hours" context
+- "How do we fix the issue?" ← Too vague, missing all context
+- "What causes request drops?" ← NEVER ASKED, hallucinated
 
-BAD sub-queries:
-- "What is an API?" (too basic)
-- "How do APIs work?" (not tied to the problem)
-- "How to build a REST API?" (wrong focus entirely)
+GOOD EXAMPLE (preserves context):
+Good decomposition:
+- "Is it normal for a load balancer to drop 2 percent of requests during peak hours?"
+- "How do we fix a load balancer that is dropping 2 percent of requests during peak hours?"
 
-GOOD sub-queries:
-- "What common causes lead to sudden API latency increases?"
-- "What monitoring data should be reviewed when response times spike?"
-- "When should scaling infrastructure be considered versus optimizing code?"
+ANOTHER GOOD EXAMPLE:
+Original: "How do I scale Kubernetes pods and monitor their performance?"
+Good decomposition:
+- "How do I scale Kubernetes pods?"
+- "How do I monitor the performance of Kubernetes pods?"
+
+Output ONLY valid JSON:
+{{"sub_queries": ["full self-contained question 1", "full self-contained question 2"]}}
 <|eot_id|><|start_header_id|>user<|end_header_id|>
 
-Question: "{query}"
+Original Question: "{query}"
+
+Rules reminder:
+- Keep ALL specific details in EVERY sub-question
+- Cover EVERY question asked
+- Do NOT add questions not in the original
 
 Break this into 2-4 sub-questions. Output format:
 {{"sub_queries": ["...", "..."]}}
@@ -120,11 +133,21 @@ Break this into 2-4 sub-questions. Output format:
             
             # Filter out empty strings
             sub_queries = [q.strip() for q in sub_queries if q.strip()]
+
+            # Sub-queries should carry context, so should be reasonably long
+            sub_queries = [
+                q for q in sub_queries 
+                if len(q.split()) >= 5  # Filter out vague 2-3 word queries
+            ]
             
             # Limit to 4 sub-queries max
             if len(sub_queries) > 4:
                 self.logger.warning(f"Too many sub-queries ({len(sub_queries)}), limiting to 4")
                 sub_queries = sub_queries[:4]
+
+            if len(sub_queries) <= 1:
+                self.logger.warning("Decomposition produced 1 or fewer sub-queries, using original")
+                return [original_query]
             
             return sub_queries if sub_queries else [original_query]
         

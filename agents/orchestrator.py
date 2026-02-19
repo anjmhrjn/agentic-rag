@@ -741,8 +741,8 @@ if __name__ == "__main__":
         use_reflection=False
     )
 
-    # query = "A feature flag has been enabled in production for 18 months. What should happen next and why?"
-    query = "During a deployment, the canary shows a 0.1 percent increase in errors. Should you proceed? What factors matter?"
+    query = "A feature flag has been enabled in production for 18 months. What should happen next and why?"
+    # query = "During a deployment, the canary shows a 0.1 percent increase in errors. Should you proceed? What factors matter?"
     print(f"\n{'='*80}")
     print(f"Query: {query}")
     print(f"{'='*80}\n")
