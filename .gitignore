@@ -49,6 +49,9 @@ logs/
 *.sublime-project
 *.sublime-workspace
 
+# Results
+results/
+
 # Misc
 *.tmp
 *.bak

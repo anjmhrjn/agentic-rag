@@ -48,7 +48,7 @@ class AdaptiveRAGOrchestrator:
             self.LOW_CONFIDENCE = 0.35
             self.USE_DOC_TYPE_FILTER = False  # Disabled for small KB
             self.MIN_SIMILARITY = 0.4
-            self.DEFAULT_TOP_K = 5
+            self.DEFAULT_TOP_K = 3
             
         elif self.kb_size == "medium":  # 500-5000 docs
             self.HIGH_CONFIDENCE = 0.70
@@ -235,6 +235,7 @@ class AdaptiveRAGOrchestrator:
         prompt = f"""<|begin_of_text|><|start_header_id|>system<|end_header_id|>
 You are a DevOps expert. Answer this specific sub-question concisely based on documentation.
 Output ONLY valid JSON: {{"answer": "concise answer with [DOC_ID] citations"}}
+Include relevant citations in the format [DOC_ID] where appropriate.
 <|eot_id|><|start_header_id|>user<|end_header_id|>
 
 Documentation:
@@ -273,6 +274,12 @@ You are a DevOps expert. Synthesize multiple sub-answers into one comprehensive 
 Combine information logically, maintain all citations, avoid repetition.
 Output ONLY valid JSON: {{"answer": "comprehensive synthesized answer"}}
 <|eot_id|><|start_header_id|>user<|end_header_id|>
+
+Rules:
+- Only cite doc_ids that appear in the sub-answers. The citations should be in the format [DOC_ID].
+- Ensure answer directly addresses the original question
+- Base all claims on the provided sub-answers
+- Combine information logically without repetition
 
 Original Question: {original_query}
 
@@ -336,7 +343,7 @@ IMPORTANT: Previous synthesis had issues: {issues_text}
 Address these issues in your synthesis.
 
 Rules:
-- Only cite doc_ids that appear in the sub-answers
+- Only cite doc_ids that appear in the sub-answers. The citations should be in the format [DOC_ID].
 - Ensure answer directly addresses the original question
 - Base all claims on the provided sub-answers
 - Combine information logically without repetition
@@ -442,7 +449,7 @@ Synthesize carefully, addressing the issues mentioned. Output format:
 
         context_chunks = self.retriever.retrieve(
             query,
-            top_k=self.DEFAULT_TOP_K + 2,
+            top_k=self.DEFAULT_TOP_K + 1,
             doc_type_filter=doc_types,
             similarity_threshold=self.MIN_SIMILARITY
         )
@@ -453,6 +460,7 @@ Synthesize carefully, addressing the issues mentioned. Output format:
         attempt = 0
         while attempt < self.MAX_RETRIES:
             attempt += 1
+            self.logger.info(f"Generation attempt {attempt}/{self.MAX_RETRIES}")
 
             prompt = self._build_complex_query_prompt(query, context_chunks)
             answer = self.llm.generate(prompt)
@@ -476,7 +484,7 @@ Synthesize carefully, addressing the issues mentioned. Output format:
                     # Retry with even more context
                     context_chunks = self.retriever.retrieve(
                         query,
-                        top_k=self.DEFAULT_TOP_K + 5,
+                        top_k=self.DEFAULT_TOP_K + 3,
                         doc_type_filter=None,
                         similarity_threshold=max(self.MIN_SIMILARITY - 0.15, 0.2)
                     )
@@ -633,6 +641,7 @@ Output ONLY valid JSON in this EXACT format:
 
 Do NOT include "type", "id", "question", or any other fields.
 Do NOT repeat the question.
+Include relevant citations in the format [DOC_ID] where appropriate.
 Only output the JSON object with the "answer" field.<|eot_id|><|start_header_id|>user<|end_header_id|>
 
 Documentation:
@@ -657,6 +666,7 @@ Output ONLY valid JSON in this EXACT format:
 {{"answer": "your detailed answer with [DOC_ID] citations"}}
 
 Do NOT include "type", "id", "question", or any other fields.
+Include relevant citations in the format [DOC_ID] where appropriate.
 Only output the JSON object with the "answer" field.<|eot_id|><|start_header_id|>user<|end_header_id|>
 
 Documentation:
