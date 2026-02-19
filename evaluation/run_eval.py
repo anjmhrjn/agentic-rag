@@ -35,7 +35,7 @@ if __name__ == "__main__":
     
     # Option 1: Quick single benchmark
     print("Running single configuration benchmark...")
-    orchestrator = create_orchestrator(use_decomposition=False, use_reflection=False)
+    orchestrator = create_orchestrator(use_decomposition=True, use_reflection=True)
     benchmark = RAGBenchmark(orchestrator)
     test_dataset = get_test_subset(query_type="multi_part")
     aggregate = benchmark.run_benchmark(test_dataset)

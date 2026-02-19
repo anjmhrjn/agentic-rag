@@ -235,7 +235,23 @@ class AdaptiveRAGOrchestrator:
         prompt = f"""<|begin_of_text|><|start_header_id|>system<|end_header_id|>
 You are a DevOps expert. Answer this specific sub-question concisely based on documentation.
 Output ONLY valid JSON: {{"answer": "concise answer with [DOC_ID] citations"}}
-Include relevant citations in the format [DOC_ID] where appropriate.
+
+CRITICAL CITATION RULES:
+1. You MUST cite sources using EXACT format: [DOC_ID]
+2. Place citation immediately after the claim: "Use kubectl scale [KB-003]."
+3. NEVER use phrases like "according to KB-..." or "as mentioned in..."
+4. If a doc_id is KB-003, write [KB-003], not "KB-003"
+
+CORRECT citation examples:
+✓ "To scale pods, use kubectl scale --replicas=3 [KB-003]."
+✓ "Blue-green deployment minimizes downtime [KB-001] by running two environments [KB-010]."
+
+INCORRECT citation examples (DO NOT DO THIS):
+✗ "According to KB-003, use kubectl scale"
+✗ "As mentioned in the runbook, use kubectl scale"
+✗ "The documentation says to use kubectl scale"
+✗ "KB-003 explains how to scale"
+
 <|eot_id|><|start_header_id|>user<|end_header_id|>
 
 Documentation:
@@ -275,8 +291,23 @@ Combine information logically, maintain all citations, avoid repetition.
 Output ONLY valid JSON: {{"answer": "comprehensive synthesized answer"}}
 <|eot_id|><|start_header_id|>user<|end_header_id|>
 
+CRITICAL CITATION RULES:
+1. You MUST cite sources that appear in the sub-answers using EXACT format: [DOC_ID]
+2. Place citation immediately after the claim: "Use kubectl scale [KB-003]."
+3. NEVER use phrases like "according to KB-..." or "as mentioned in..."
+4. If a doc_id is KB-003, write [KB-003], not "KB-003"
+
+CORRECT citation examples:
+✓ "To scale pods, use kubectl scale --replicas=3 [KB-003]."
+✓ "Blue-green deployment minimizes downtime [KB-001] by running two environments [KB-010]."
+
+INCORRECT citation examples (DO NOT DO THIS):
+✗ "According to KB-003, use kubectl scale"
+✗ "As mentioned in the runbook, use kubectl scale"
+✗ "The documentation says to use kubectl scale"
+✗ "KB-003 explains how to scale"
+
 Rules:
-- Only cite doc_ids that appear in the sub-answers. The citations should be in the format [DOC_ID].
 - Ensure answer directly addresses the original question
 - Base all claims on the provided sub-answers
 - Combine information logically without repetition
@@ -287,7 +318,7 @@ Sub-answers to synthesize:
 {sub_answers_text}
 
 Synthesize these into one comprehensive answer to the original question.
-Maintain all [DOC_ID] citations. Output format:
+Output format:
 {{"answer": "..."}}
 <|eot_id|><|start_header_id|>assistant<|end_header_id|>
 """
@@ -342,8 +373,23 @@ You are a DevOps expert. Synthesize multiple sub-answers into one comprehensive 
 IMPORTANT: Previous synthesis had issues: {issues_text}
 Address these issues in your synthesis.
 
+CRITICAL CITATION RULES:
+1. You MUST cite sources that appear in the sub-answers using EXACT format: [DOC_ID]
+2. Place citation immediately after the claim: "Use kubectl scale [KB-003]."
+3. NEVER use phrases like "according to KB-..." or "as mentioned in..."
+4. If a doc_id is KB-003, write [KB-003], not "KB-003"
+
+CORRECT citation examples:
+✓ "To scale pods, use kubectl scale --replicas=3 [KB-003]."
+✓ "Blue-green deployment minimizes downtime [KB-001] by running two environments [KB-010]."
+
+INCORRECT citation examples (DO NOT DO THIS):
+✗ "According to KB-003, use kubectl scale"
+✗ "As mentioned in the runbook, use kubectl scale"
+✗ "The documentation says to use kubectl scale"
+✗ "KB-003 explains how to scale"
+
 Rules:
-- Only cite doc_ids that appear in the sub-answers. The citations should be in the format [DOC_ID].
 - Ensure answer directly addresses the original question
 - Base all claims on the provided sub-answers
 - Combine information logically without repetition
@@ -639,9 +685,24 @@ You are a DevOps expert. Answer questions based on documentation.
 Output ONLY valid JSON in this EXACT format:
 {{"answer": "your detailed answer here with [DOC_ID] citations"}}
 
+CRITICAL CITATION RULES:
+1. You MUST cite sources using EXACT format: [DOC_ID]
+2. Place citation immediately after the claim: "Use kubectl scale [KB-003]."
+3. NEVER use phrases like "according to KB-..." or "as mentioned in..."
+4. If a doc_id is KB-003, write [KB-003], not "KB-003"
+
+CORRECT citation examples:
+✓ "To scale pods, use kubectl scale --replicas=3 [KB-003]."
+✓ "Blue-green deployment minimizes downtime [KB-001] by running two environments [KB-010]."
+
+INCORRECT citation examples (DO NOT DO THIS):
+✗ "According to KB-003, use kubectl scale"
+✗ "As mentioned in the runbook, use kubectl scale"
+✗ "The documentation says to use kubectl scale"
+✗ "KB-003 explains how to scale"
+
 Do NOT include "type", "id", "question", or any other fields.
 Do NOT repeat the question.
-Include relevant citations in the format [DOC_ID] where appropriate.
 Only output the JSON object with the "answer" field.<|eot_id|><|start_header_id|>user<|end_header_id|>
 
 Documentation:
@@ -665,8 +726,23 @@ You are a DevOps expert. For complex questions, provide comprehensive answers.
 Output ONLY valid JSON in this EXACT format:
 {{"answer": "your detailed answer with [DOC_ID] citations"}}
 
+CRITICAL CITATION RULES:
+1. You MUST cite sources using EXACT format: [DOC_ID]
+2. Place citation immediately after the claim: "Use kubectl scale [KB-003]."
+3. NEVER use phrases like "according to KB-..." or "as mentioned in..."
+4. If a doc_id is KB-003, write [KB-003], not "KB-003"
+
+CORRECT citation examples:
+✓ "To scale pods, use kubectl scale --replicas=3 [KB-003]."
+✓ "Blue-green deployment minimizes downtime [KB-001] by running two environments [KB-010]."
+
+INCORRECT citation examples (DO NOT DO THIS):
+✗ "According to KB-003, use kubectl scale"
+✗ "As mentioned in the runbook, use kubectl scale"
+✗ "The documentation says to use kubectl scale"
+✗ "KB-003 explains how to scale"
+
 Do NOT include "type", "id", "question", or any other fields.
-Include relevant citations in the format [DOC_ID] where appropriate.
 Only output the JSON object with the "answer" field.<|eot_id|><|start_header_id|>user<|end_header_id|>
 
 Documentation:

@@ -92,7 +92,6 @@ class RAGBenchmark:
                 logger.info(f"Strategy: {result['strategy']}")
                 logger.info(f"Latency: {latency:.2f}s")
                 logger.info(f"Overall Score: {metrics['overall_score']:.3f}")
-                logger.info(f"Retrieval F1: {metrics['retrieval_f1']:.3f}")
                 logger.info(f"Topic Coverage: {metrics['topic_coverage']:.3f}")
                 
             except Exception as e:
@@ -118,9 +117,8 @@ class RAGBenchmark:
         return aggregate
     
     def _calculate_aggregate_metrics(self) -> Dict:
-        """Calculate aggregate metrics across all test queries"""
+        """Calculate aggregate metrics"""
         
-        # Filter out errors
         valid_results = [r for r in self.results if not r.error]
         
         if not valid_results:
@@ -140,19 +138,26 @@ class RAGBenchmark:
                     by_type[qtype] = []
                 by_type[qtype].append(result)
         
-        # Overall metrics
         overall = {
             "total_queries": len(self.results),
             "successful_queries": len(valid_results),
             "error_rate": (len(self.results) - len(valid_results)) / len(self.results),
             
-            # Average metrics
-            "avg_overall_score": self._avg([r.metrics.get('overall_score', 0) for r in valid_results]),
-            "avg_retrieval_f1": self._avg([r.metrics.get('retrieval_f1', 0) for r in valid_results]),
-            "avg_retrieval_precision": self._avg([r.metrics.get('retrieval_precision', 0) for r in valid_results]),
+            "avg_critical_source_recall": self._avg([r.metrics.get('critical_source_recall', 0) for r in valid_results]),
+            "avg_mean_reciprocal_rank": self._avg([r.metrics.get('mean_reciprocal_rank', 0) for r in valid_results]),
+            "avg_success_at_3": self._avg([r.metrics.get('success_at_3', 0) for r in valid_results]),
+            "avg_success_at_5": self._avg([r.metrics.get('success_at_5', 0) for r in valid_results]),
+            "avg_precision_at_3": self._avg([r.metrics.get('precision_at_3', 0) for r in valid_results]),
+            "avg_rank_of_best": self._avg([r.metrics.get('rank_of_best', 0) for r in valid_results if r.metrics.get('rank_of_best', -1) > 0]),
+            
+            # Metrics only for comparison
+            "avg_retrieval_precision_full": self._avg([r.metrics.get('retrieval_precision_full', 0) for r in valid_results]),
             "avg_retrieval_recall": self._avg([r.metrics.get('retrieval_recall', 0) for r in valid_results]),
+            
+            # Answer quality
             "avg_citation_accuracy": self._avg([r.metrics.get('citation_accuracy', 0) for r in valid_results]),
             "avg_topic_coverage": self._avg([r.metrics.get('topic_coverage', 0) for r in valid_results]),
+            "avg_overall_score": self._avg([r.metrics.get('overall_score', 0) for r in valid_results]),
             "avg_latency": self._avg([r.latency for r in valid_results]),
             
             # Strategy breakdown
@@ -163,6 +168,7 @@ class RAGBenchmark:
                 qtype: {
                     "count": len(results),
                     "avg_score": self._avg([r.metrics.get('overall_score', 0) for r in results]),
+                    "avg_critical_recall": self._avg([r.metrics.get('critical_source_recall', 0) for r in results]),
                     "avg_latency": self._avg([r.latency for r in results])
                 }
                 for qtype, results in by_type.items()
@@ -219,14 +225,17 @@ class RAGBenchmark:
         print(f"Successful: {aggregate['successful_queries']}")
         print(f"Error Rate: {aggregate['error_rate']:.1%}")
         
-        print(f"\n{'OVERALL METRICS':-^80}")
-        print(f"Overall Score:        {aggregate['avg_overall_score']:.3f}")
-        print(f"Retrieval F1:         {aggregate['avg_retrieval_f1']:.3f}")
-        print(f"Retrieval Precision:  {aggregate['avg_retrieval_precision']:.3f}")
-        print(f"Retrieval Recall:     {aggregate['avg_retrieval_recall']:.3f}")
-        print(f"Citation Accuracy:    {aggregate['avg_citation_accuracy']:.3f}")
-        print(f"Topic Coverage:       {aggregate['avg_topic_coverage']:.3f}")
-        print(f"Average Latency:      {aggregate['avg_latency']:.2f}s")
+        print("\n" + "="*80)
+        print("NEW RAG-APPROPRIATE METRICS:")
+        print("="*80)
+        print(f"Critical Source Recall:  {aggregate['avg_critical_source_recall']:.3f}")
+        print(f"Mean Reciprocal Rank:    {aggregate['avg_mean_reciprocal_rank']:.3f}")
+        print(f"Success@3:               {aggregate['avg_success_at_3']:.3f}")
+        print(f"Success@5:               {aggregate['avg_success_at_5']:.3f}")
+        print(f"Precision@3:             {aggregate['avg_precision_at_3']:.3f}")
+        print(f"\nCitation Accuracy:       {aggregate['avg_citation_accuracy']:.3f}")
+        print(f"Topic Coverage:          {aggregate['avg_topic_coverage']:.3f}")
+        print(f"\nOverall Score:           {aggregate['avg_overall_score']:.3f}")
         
         print(f"\n{'STRATEGY DISTRIBUTION':-^80}")
         for strategy, count in aggregate['strategy_distribution'].items():
