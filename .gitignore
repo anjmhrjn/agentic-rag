@@ -57,3 +57,6 @@ results/
 *.bak
 *.swp
 notes.txt
+
+# hotpotqa wiki docs
+data/hotpotqa

@@ -62,7 +62,15 @@ def process_docs(input_dir, output_file):
         json.dump(all_chunks, f, indent=2)
 
 if __name__ == "__main__":
+    # small KB
+    # input_dir = "data/raw_docs"
+    # output_file = "data/processed_chunks/chunks.json"
+
+    # medium KB
+    input_dir = "data/hotpotqa"
+    output_file = "data/processed_chunks/hotpotqa_chunks.json"
+
     process_docs(
-        input_dir="data/raw_docs",
-        output_file="data/processed_chunks/chunks.json"
+        input_dir=input_dir,
+        output_file=output_file
     )

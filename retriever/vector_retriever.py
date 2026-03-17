@@ -1,17 +1,25 @@
 import faiss
 import json
+import logging
 import numpy as np
 from sentence_transformers import SentenceTransformer
 
 class VectorRetriever:
     def __init__(self, index_path, meta_path, embed_model_name="BAAI/bge-base-en-v1.5"):
         self.index = faiss.read_index(index_path)
+        self.logger = logging.getLogger(__name__)
+
+        # If using IVF, set search parameters
+        if hasattr(self.index, 'nprobe'):
+            self.index.nprobe = 10  # Search 10 clusters (balance speed/accuracy)
+            self.logger.info(f"IVF index detected, set nprobe=10")
+
         with open(meta_path) as f:
             self.meta = json.load(f)
         # Initialize embedding model
         self.embed_model = SentenceTransformer(embed_model_name)
         # Normalize instruction for BGE models (improves retrieval)
-        self.query_instruction = "Represent this query for searching relevant DevOps documentation: "
+        self.query_instruction = "Represent this query for searching relevant documentation: "
 
     def retrieve(
         self, 
