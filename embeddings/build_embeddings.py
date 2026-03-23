@@ -92,10 +92,15 @@ def build_embeddings_medium_kb(chunks_path, output_index_path, output_meta_path)
     print(f"Total vectors: {index.ntotal}")
 
 if __name__ == "__main__":
+    # musique KB paths
+    chunks_path = "data/processed_chunks/musique_chunks.json"
+    output_index_path = "embeddings/musique_faiss.index"
+    output_meta_path = "embeddings/musique_metadata.json"
+
     # medium KB paths
-    chunks_path = "data/processed_chunks/hotpotqa_chunks.json"
-    output_index_path = "embeddings/hotpotqa_faiss.index"
-    output_meta_path = "embeddings/hotpotqa_metadata.json"
+    # chunks_path = "data/processed_chunks/hotpotqa_chunks.json"
+    # output_index_path = "embeddings/hotpotqa_faiss.index"
+    # output_meta_path = "embeddings/hotpotqa_metadata.json"
 
     # small KB paths
     # chunks_path = "data/processed_chunks/chunks.json"

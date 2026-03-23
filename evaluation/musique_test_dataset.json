@@ -1,0 +1,2319 @@
+[
+  {
+    "query": "What is the birthplace of the man who does the voice of Stan on the series that includes the episode The Hobbit?",
+    "expected_answer": "Denver",
+    "expected_sources": [
+      "MUSIQUE-00000",
+      "MUSIQUE-00007",
+      "MUSIQUE-00009"
+    ],
+    "expected_topics": [
+      "denver"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "The Hobbit >> part of the series",
+      "who does the voice of stan on #1",
+      "#2 >> place of birth"
+    ],
+    "num_hops": 3
+  },
+  {
+    "query": "Who is the president of the new country who has jointly established a Commission on Truth and Friendship with the birth country of Satyo Husodo?",
+    "expected_answer": "Francisco Guterres",
+    "expected_sources": [
+      "MUSIQUE-00027",
+      "MUSIQUE-00028",
+      "MUSIQUE-00036"
+    ],
+    "expected_topics": [
+      "francisco",
+      "guterres"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "Where was Satyo Husodo born?",
+      "#1 –Timor Leste Commission of Truth and Friendship >> country",
+      "who is the president of newly declared independent country #2"
+    ],
+    "num_hops": 3
+  },
+  {
+    "query": "Who is the president of the newly declared independent country that is part of the commission of truth and friendship with the country that eats Kemplang?",
+    "expected_answer": "Francisco Guterres",
+    "expected_sources": [
+      "MUSIQUE-00040",
+      "MUSIQUE-00027",
+      "MUSIQUE-00036"
+    ],
+    "expected_topics": [
+      "francisco",
+      "guterres"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "Which was the country for Kemplang?",
+      "#1 –Timor Leste Commission of Truth and Friendship >> country",
+      "who is the president of newly declared independent country #2"
+    ],
+    "num_hops": 3
+  },
+  {
+    "query": "Who is the president of the newly declared independent country part of the Commission of Truth and Friendship with the country where Gado-gado is found?",
+    "expected_answer": "Francisco Guterres",
+    "expected_sources": [
+      "MUSIQUE-00036",
+      "MUSIQUE-00027",
+      "MUSIQUE-00045"
+    ],
+    "expected_topics": [
+      "francisco",
+      "guterres"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "The country for Gado-gado was what?",
+      "#1 –Timor Leste Commission of Truth and Friendship >> country",
+      "who is the president of newly declared independent country #2"
+    ],
+    "num_hops": 3
+  },
+  {
+    "query": "Who is the president of the newly declared independent country that is part of the Commission of Truth and Friendship with the country that Tony Gunawan is from?",
+    "expected_answer": "Francisco Guterres",
+    "expected_sources": [
+      "MUSIQUE-00027",
+      "MUSIQUE-00036",
+      "MUSIQUE-00051"
+    ],
+    "expected_topics": [
+      "francisco",
+      "guterres"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "Where was Tony Gunawan from?",
+      "#1 –Timor Leste Commission of Truth and Friendship >> country",
+      "who is the president of newly declared independent country #2"
+    ],
+    "num_hops": 3
+  },
+  {
+    "query": "Who is the president of the newly declared independent country part of the Commission of Truth and Friendship with the country that made Arisan!??",
+    "expected_answer": "Francisco Guterres",
+    "expected_sources": [
+      "MUSIQUE-00027",
+      "MUSIQUE-00052",
+      "MUSIQUE-00036"
+    ],
+    "expected_topics": [
+      "francisco",
+      "guterres"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "Which was the country for Arisan!?",
+      "#1 –Timor Leste Commission of Truth and Friendship >> country",
+      "who is the president of newly declared independent country #2"
+    ],
+    "num_hops": 3
+  },
+  {
+    "query": "Arie Supriyatna's birth country was one participant in a Commission of Truth and Friendship. Who is the president of the other country that participated?",
+    "expected_answer": "Francisco Guterres",
+    "expected_sources": [
+      "MUSIQUE-00036",
+      "MUSIQUE-00027",
+      "MUSIQUE-00055"
+    ],
+    "expected_topics": [
+      "francisco",
+      "guterres"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "Where was Arie Supriyatna born?",
+      "#1 –Timor Leste Commission of Truth and Friendship >> country",
+      "who is the president of newly declared independent country #2"
+    ],
+    "num_hops": 3
+  },
+  {
+    "query": "The Commission of Truth and Friendship established governments for Bustami's birth country and a second country that had who as president after declaring independence?",
+    "expected_answer": "Francisco Guterres",
+    "expected_sources": [
+      "MUSIQUE-00056",
+      "MUSIQUE-00027",
+      "MUSIQUE-00036"
+    ],
+    "expected_topics": [
+      "francisco",
+      "guterres"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "What is the city of birth of Bustami?",
+      "#1 –Timor Leste Commission of Truth and Friendship >> country",
+      "who is the president of newly declared independent country #2"
+    ],
+    "num_hops": 3
+  },
+  {
+    "query": "Who is the president of the newly declared independent country that is part of the Commission of Truth and Friendship with Radiansyah's birth country?",
+    "expected_answer": "Francisco Guterres",
+    "expected_sources": [
+      "MUSIQUE-00036",
+      "MUSIQUE-00058",
+      "MUSIQUE-00027"
+    ],
+    "expected_topics": [
+      "francisco",
+      "guterres"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "What was Radiansyah birth country?",
+      "#1 –Timor Leste Commission of Truth and Friendship >> country",
+      "who is the president of newly declared independent country #2"
+    ],
+    "num_hops": 3
+  },
+  {
+    "query": "who is the president of newly declared independent country of the country of the birthplace of Mulham Arufin–Timor Leste Commission of Truth and Friendship?",
+    "expected_answer": "Francisco Guterres",
+    "expected_sources": [
+      "MUSIQUE-00059",
+      "MUSIQUE-00036",
+      "MUSIQUE-00027"
+    ],
+    "expected_topics": [
+      "francisco",
+      "guterres"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "What is Mulham Arufin's birthplace?",
+      "#1 –Timor Leste Commission of Truth and Friendship >> country",
+      "who is the president of newly declared independent country #2"
+    ],
+    "num_hops": 3
+  },
+  {
+    "query": "Kiwil's birth country participated in a Commission of Truth and Friendship. Who is the president of the other country that participated?",
+    "expected_answer": "Francisco Guterres",
+    "expected_sources": [
+      "MUSIQUE-00060",
+      "MUSIQUE-00027",
+      "MUSIQUE-00036"
+    ],
+    "expected_topics": [
+      "francisco",
+      "guterres"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "What is Kiwil's country of original?",
+      "#1 –Timor Leste Commission of Truth and Friendship >> country",
+      "who is the president of newly declared independent country #2"
+    ],
+    "num_hops": 3
+  },
+  {
+    "query": "Who is the president of the newly declared independent country that is part of the Commission of Truth and Friendship with the country where Sumardi was born?",
+    "expected_answer": "Francisco Guterres",
+    "expected_sources": [
+      "MUSIQUE-00027",
+      "MUSIQUE-00063",
+      "MUSIQUE-00036"
+    ],
+    "expected_topics": [
+      "francisco",
+      "guterres"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "Which city was the birthplace of Sumardi?",
+      "#1 –Timor Leste Commission of Truth and Friendship >> country",
+      "who is the president of newly declared independent country #2"
+    ],
+    "num_hops": 3
+  },
+  {
+    "query": "Who is president of the newly declared independent country that is part of the Commission of Truth and Friendship with the country where Opor originated?",
+    "expected_answer": "Francisco Guterres",
+    "expected_sources": [
+      "MUSIQUE-00036",
+      "MUSIQUE-00064",
+      "MUSIQUE-00027"
+    ],
+    "expected_topics": [
+      "francisco",
+      "guterres"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "What country did Opor originate?",
+      "#1 –Timor Leste Commission of Truth and Friendship >> country",
+      "who is the president of newly declared independent country #2"
+    ],
+    "num_hops": 3
+  },
+  {
+    "query": "What is the place of birth of who does the voice of stan on the series that Insecurity is part of?",
+    "expected_answer": "Denver",
+    "expected_sources": [
+      "MUSIQUE-00009",
+      "MUSIQUE-00007",
+      "MUSIQUE-00071"
+    ],
+    "expected_topics": [
+      "denver"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "Insecurity >> part of the series",
+      "who does the voice of stan on #1",
+      "#2 >> place of birth"
+    ],
+    "num_hops": 3
+  },
+  {
+    "query": "Who is the president of the new country that jointly established a Commission of Truth and Friendship with the country that broadcasts Dahsyat?",
+    "expected_answer": "Francisco Guterres",
+    "expected_sources": [
+      "MUSIQUE-00036",
+      "MUSIQUE-00072",
+      "MUSIQUE-00027"
+    ],
+    "expected_topics": [
+      "francisco",
+      "guterres"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "What is the country Dahsyat is from?",
+      "#1 –Timor Leste Commission of Truth and Friendship >> country",
+      "who is the president of newly declared independent country #2"
+    ],
+    "num_hops": 3
+  },
+  {
+    "query": "what is the former name of the country where the airport that Lion Air is part is located?",
+    "expected_answer": "Dutch East Indies",
+    "expected_sources": [
+      "MUSIQUE-00083",
+      "MUSIQUE-00087",
+      "MUSIQUE-00090"
+    ],
+    "expected_topics": [
+      "dutch",
+      "east",
+      "indies"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "What airport is Lion Air part of?",
+      "#1 >> country",
+      "What is the former name for #2 ?"
+    ],
+    "num_hops": 3
+  },
+  {
+    "query": "What is the former name of the country where Atika Suri studied?",
+    "expected_answer": "Dutch East Indies",
+    "expected_sources": [
+      "MUSIQUE-00098",
+      "MUSIQUE-00101",
+      "MUSIQUE-00087"
+    ],
+    "expected_topics": [
+      "dutch",
+      "east",
+      "indies"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "Where did Atika Suri study or work?",
+      "#1 >> country",
+      "What is the former name for #2 ?"
+    ],
+    "num_hops": 3
+  },
+  {
+    "decomposed": true,
+    "query": "What is the meaning of the word that is also a majority religion in the region that became India when the country where Kohat is located was created in the Arabic dictionary?",
+    "expected_answer": "the country of India",
+    "expected_sources": [
+      "MUSIQUE-00118",
+      "MUSIQUE-00117",
+      "MUSIQUE-00126"
+    ],
+    "expected_topics": [
+      "the",
+      "country",
+      "of",
+      "india"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "Kohat >> country",
+      "What was the majority religion in the area of British India that become India when #1 was created?",
+      "what is the meaning of #2 in arabic dictionary"
+    ],
+    "num_hops": 3
+  },
+  {
+    "decomposed": true,
+    "query": "What is the meaning of the word that is also a majority religion in the area that became India when the country that withdrew its forces was created in the Arabic dictionary?",
+    "expected_answer": "the country of India",
+    "expected_sources": [
+      "MUSIQUE-00117",
+      "MUSIQUE-00134",
+      "MUSIQUE-00126"
+    ],
+    "expected_topics": [
+      "the",
+      "country",
+      "of",
+      "india"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "Who withdrew it's forces?",
+      "What was the majority religion in the area of British India that become India when #1 was created?",
+      "what is the meaning of #2 in arabic dictionary"
+    ],
+    "num_hops": 3
+  },
+  {
+    "query": "Who is the president of the newly declared independent country that has a Commission of Truth and Friendship with the country where Ambelau is located?",
+    "expected_answer": "Francisco Guterres",
+    "expected_sources": [
+      "MUSIQUE-00027",
+      "MUSIQUE-00036",
+      "MUSIQUE-00136"
+    ],
+    "expected_topics": [
+      "francisco",
+      "guterres"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "Ambelau >> country",
+      "#1 –Timor Leste Commission of Truth and Friendship >> country",
+      "who is the president of newly declared independent country #2"
+    ],
+    "num_hops": 3
+  },
+  {
+    "decomposed": true,
+    "query": "In the Arabic dictionary what is the meaning of the word that also refers to the majority religion in India when the country containing the Neolithic graveyards was created?",
+    "expected_answer": "the country of India",
+    "expected_sources": [
+      "MUSIQUE-00126",
+      "MUSIQUE-00138",
+      "MUSIQUE-00117"
+    ],
+    "expected_topics": [
+      "the",
+      "country",
+      "of",
+      "india"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "Where are the Neolithic graveyards?",
+      "What was the majority religion in the area of British India that become India when #1 was created?",
+      "what is the meaning of #2 in arabic dictionary"
+    ],
+    "num_hops": 3
+  },
+  {
+    "query": "Who is the president of the newly declared independent country that is part of the Commission of Truth and Friendship with the country where Jenggawah is located?",
+    "expected_answer": "Francisco Guterres",
+    "expected_sources": [
+      "MUSIQUE-00027",
+      "MUSIQUE-00139",
+      "MUSIQUE-00036"
+    ],
+    "expected_topics": [
+      "francisco",
+      "guterres"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "Jenggawah >> country",
+      "#1 –Timor Leste Commission of Truth and Friendship >> country",
+      "who is the president of newly declared independent country #2"
+    ],
+    "num_hops": 3
+  },
+  {
+    "query": "What is the Arabic dictionary meaning, of the word for the majority religion in the part of British India, that became India when the country that released Mushkil was created?",
+    "expected_answer": "the country of India",
+    "expected_sources": [
+      "MUSIQUE-00117",
+      "MUSIQUE-00140",
+      "MUSIQUE-00126"
+    ],
+    "expected_topics": [
+      "the",
+      "country",
+      "of",
+      "india"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "What country released Mushkil?",
+      "What was the majority religion in the area of British India that become India when #1 was created?",
+      "what is the meaning of #2 in arabic dictionary"
+    ],
+    "num_hops": 3
+  },
+  {
+    "query": "Who is the president of the newly declared independent country that is part of the Commission of Truth and Friendship with the country where Sambas is located?",
+    "expected_answer": "Francisco Guterres",
+    "expected_sources": [
+      "MUSIQUE-00141",
+      "MUSIQUE-00036",
+      "MUSIQUE-00027"
+    ],
+    "expected_topics": [
+      "francisco",
+      "guterres"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "Sambas >> country",
+      "#1 –Timor Leste Commission of Truth and Friendship >> country",
+      "who is the president of newly declared independent country #2"
+    ],
+    "num_hops": 3
+  },
+  {
+    "query": "Who is the president of the newly declared independent country that is part of the Commission of Truth and Friendship with the country where Kotamadya is located?",
+    "expected_answer": "Francisco Guterres",
+    "expected_sources": [
+      "MUSIQUE-00036",
+      "MUSIQUE-00142",
+      "MUSIQUE-00027"
+    ],
+    "expected_topics": [
+      "francisco",
+      "guterres"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "Kotamadya >> country",
+      "#1 –Timor Leste Commission of Truth and Friendship >> country",
+      "who is the president of newly declared independent country #2"
+    ],
+    "num_hops": 3
+  },
+  {
+    "decomposed": true,
+    "query": "What is the meaning of the word that is also a majority religion in the area that became India when the country where Masherbrum is located was created in the Arabic dictionary?",
+    "expected_answer": "the country of India",
+    "expected_sources": [
+      "MUSIQUE-00143",
+      "MUSIQUE-00117",
+      "MUSIQUE-00126"
+    ],
+    "expected_topics": [
+      "the",
+      "country",
+      "of",
+      "india"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "What country is this landmark in?",
+      "What was the majority religion in the area of British India that become India when #1 was created?",
+      "what is the meaning of #2 in arabic dictionary"
+    ],
+    "num_hops": 3
+  },
+  {
+    "query": "Who is the president of the newly declared independent country that is part of the Commission of Truth and Friendship with the country where Buru is located?",
+    "expected_answer": "Francisco Guterres",
+    "expected_sources": [
+      "MUSIQUE-00027",
+      "MUSIQUE-00144",
+      "MUSIQUE-00036"
+    ],
+    "expected_topics": [
+      "francisco",
+      "guterres"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "Buru >> country",
+      "#1 –Timor Leste Commission of Truth and Friendship >> country",
+      "who is the president of newly declared independent country #2"
+    ],
+    "num_hops": 3
+  },
+  {
+    "decomposed": true,
+    "query": "What is the meaning of the word that is also a majority religion in India when the country where Banna is located was created in the Arabic dictionary?",
+    "expected_answer": "the country of India",
+    "expected_sources": [
+      "MUSIQUE-00117",
+      "MUSIQUE-00126",
+      "MUSIQUE-00145"
+    ],
+    "expected_topics": [
+      "the",
+      "country",
+      "of",
+      "india"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "Banna >> country",
+      "What was the majority religion in the area of British India that become India when #1 was created?",
+      "what is the meaning of #2 in arabic dictionary"
+    ],
+    "num_hops": 3
+  },
+  {
+    "query": "What is the meaning in the arabic dictionary of the majority religion in the area of British India that become India when the country for A Music Fairy was created?",
+    "expected_answer": "the country of India",
+    "expected_sources": [
+      "MUSIQUE-00126",
+      "MUSIQUE-00117",
+      "MUSIQUE-00146"
+    ],
+    "expected_topics": [
+      "the",
+      "country",
+      "of",
+      "india"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "Which was the country for A Music Fairy?",
+      "What was the majority religion in the area of British India that become India when #1 was created?",
+      "what is the meaning of #2 in arabic dictionary"
+    ],
+    "num_hops": 3
+  },
+  {
+    "decomposed": true,
+    "query": "What is the meaning of the word that is also a majority religion in what became India when the country that disavowed the Taliban was created in the Arabic dictionary?",
+    "expected_answer": "the country of India",
+    "expected_sources": [
+      "MUSIQUE-00117",
+      "MUSIQUE-00147",
+      "MUSIQUE-00126"
+    ],
+    "expected_topics": [
+      "the",
+      "country",
+      "of",
+      "india"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "Which country disavowed the Taliban?",
+      "What was the majority religion in the area of British India that become India when #1 was created?",
+      "what is the meaning of #2 in arabic dictionary"
+    ],
+    "num_hops": 3
+  },
+  {
+    "query": "who is the president of newly declared independent country which is the country of the country of Alabio –Timor Leste Commission of Truth and Friendship?",
+    "expected_answer": "Francisco Guterres",
+    "expected_sources": [
+      "MUSIQUE-00148",
+      "MUSIQUE-00027",
+      "MUSIQUE-00036"
+    ],
+    "expected_topics": [
+      "francisco",
+      "guterres"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "Alabio >> country",
+      "#1 –Timor Leste Commission of Truth and Friendship >> country",
+      "who is the president of newly declared independent country #2"
+    ],
+    "num_hops": 3
+  },
+  {
+    "query": "In the Arabic dictionary, what's the meaning of the word for the majority religion in the area of British India that became India when Dourkhan's country was created?",
+    "expected_answer": "the country of India",
+    "expected_sources": [
+      "MUSIQUE-00149",
+      "MUSIQUE-00126",
+      "MUSIQUE-00117"
+    ],
+    "expected_topics": [
+      "the",
+      "country",
+      "of",
+      "india"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "Dourkhan >> country",
+      "What was the majority religion in the area of British India that become India when #1 was created?",
+      "what is the meaning of #2 in arabic dictionary"
+    ],
+    "num_hops": 3
+  },
+  {
+    "decomposed": true,
+    "query": "What is the meaning of the word also known as the majority religion in the area of British India that became India when the country where Mandeer is located was created in arabic dictionary?",
+    "expected_answer": "the country of India",
+    "expected_sources": [
+      "MUSIQUE-00150",
+      "MUSIQUE-00126",
+      "MUSIQUE-00117"
+    ],
+    "expected_topics": [
+      "the",
+      "country",
+      "of",
+      "india"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "Mandeer >> country",
+      "What was the majority religion in the area of British India that become India when #1 was created?",
+      "what is the meaning of #2 in arabic dictionary"
+    ],
+    "num_hops": 3
+  },
+  {
+    "query": "Who is the president of the newly declared independent country, that established the Timor Leste Commission of Truth and Friendship with the country where the Alas is found?",
+    "expected_answer": "Francisco Guterres",
+    "expected_sources": [
+      "MUSIQUE-00036",
+      "MUSIQUE-00027",
+      "MUSIQUE-00151"
+    ],
+    "expected_topics": [
+      "francisco",
+      "guterres"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "Alas >> country",
+      "#1 –Timor Leste Commission of Truth and Friendship >> country",
+      "who is the president of newly declared independent country #2"
+    ],
+    "num_hops": 3
+  },
+  {
+    "query": "In the Arabic dictionary, what's the meaning of the word for the majority religion in the area of British India that became India when Garlat's country was created?",
+    "expected_answer": "the country of India",
+    "expected_sources": [
+      "MUSIQUE-00126",
+      "MUSIQUE-00152",
+      "MUSIQUE-00117"
+    ],
+    "expected_topics": [
+      "the",
+      "country",
+      "of",
+      "india"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "Garlat >> country",
+      "What was the majority religion in the area of British India that become India when #1 was created?",
+      "what is the meaning of #2 in arabic dictionary"
+    ],
+    "num_hops": 3
+  },
+  {
+    "query": "what is meaning of the word that is a majority religion of the area that became India when the country origin of Mizraab was created in Arabic dictionary?",
+    "expected_answer": "the country of India",
+    "expected_sources": [
+      "MUSIQUE-00153",
+      "MUSIQUE-00126",
+      "MUSIQUE-00117"
+    ],
+    "expected_topics": [
+      "the",
+      "country",
+      "of",
+      "india"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "The country of origin for Mizraab is what?",
+      "What was the majority religion in the area of British India that become India when #1 was created?",
+      "what is the meaning of #2 in arabic dictionary"
+    ],
+    "num_hops": 3
+  },
+  {
+    "query": "Who is the president of newly declared independent country part of the Commission of Truth and Friendship with the country where Kaimana is located?",
+    "expected_answer": "Francisco Guterres",
+    "expected_sources": [
+      "MUSIQUE-00156",
+      "MUSIQUE-00027",
+      "MUSIQUE-00036"
+    ],
+    "expected_topics": [
+      "francisco",
+      "guterres"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "Kaimana >> country",
+      "#1 –Timor Leste Commission of Truth and Friendship >> country",
+      "who is the president of newly declared independent country #2"
+    ],
+    "num_hops": 3
+  },
+  {
+    "query": "Who is the president of the newly declared independent country that is part of the commission of Truth and Friendship with the country where Inierie is located?",
+    "expected_answer": "Francisco Guterres",
+    "expected_sources": [
+      "MUSIQUE-00157",
+      "MUSIQUE-00027",
+      "MUSIQUE-00036"
+    ],
+    "expected_topics": [
+      "francisco",
+      "guterres"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "Inierie >> country",
+      "#1 –Timor Leste Commission of Truth and Friendship >> country",
+      "who is the president of newly declared independent country #2"
+    ],
+    "num_hops": 3
+  },
+  {
+    "decomposed": true,
+    "query": "In the arabic dictionary what is the meaning of the word that also refers to the majority religion in India during the creation of the country where Rabwah is located?",
+    "expected_answer": "the country of India",
+    "expected_sources": [
+      "MUSIQUE-00158",
+      "MUSIQUE-00126",
+      "MUSIQUE-00117"
+    ],
+    "expected_topics": [
+      "the",
+      "country",
+      "of",
+      "india"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "Rabwah >> country",
+      "What was the majority religion in the area of British India that become India when #1 was created?",
+      "what is the meaning of #2 in arabic dictionary"
+    ],
+    "num_hops": 3
+  },
+  {
+    "decomposed": true,
+    "query": "What is the meaning of the word that is also the majority religion in India when the country where Dubbi is located was created in the Arabic dictionary?",
+    "expected_answer": "the country of India",
+    "expected_sources": [
+      "MUSIQUE-00126",
+      "MUSIQUE-00159",
+      "MUSIQUE-00117"
+    ],
+    "expected_topics": [
+      "the",
+      "country",
+      "of",
+      "india"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "Dubbi >> country",
+      "What was the majority religion in the area of British India that become India when #1 was created?",
+      "what is the meaning of #2 in arabic dictionary"
+    ],
+    "num_hops": 3
+  },
+  {
+    "decomposed": true,
+    "query": "What is the meaning in the Arabic dictionary of the word which also refers to the majority religion of what became India when the country whose business news is covered by Corporate Corridor was created?",
+    "expected_answer": "the country of India",
+    "expected_sources": [
+      "MUSIQUE-00160",
+      "MUSIQUE-00126",
+      "MUSIQUE-00117"
+    ],
+    "expected_topics": [
+      "the",
+      "country",
+      "of",
+      "india"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "Which was the country for Corporate Corridor?",
+      "What was the majority religion in the area of British India that become India when #1 was created?",
+      "what is the meaning of #2 in arabic dictionary"
+    ],
+    "num_hops": 3
+  },
+  {
+    "query": "Who is the president of the newly declared independent country that formed the Timor Leste Commission of Truth and Friendship with the country where Pantar is found?",
+    "expected_answer": "Francisco Guterres",
+    "expected_sources": [
+      "MUSIQUE-00027",
+      "MUSIQUE-00163",
+      "MUSIQUE-00036"
+    ],
+    "expected_topics": [
+      "francisco",
+      "guterres"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "Pantar >> country",
+      "#1 –Timor Leste Commission of Truth and Friendship >> country",
+      "who is the president of newly declared independent country #2"
+    ],
+    "num_hops": 3
+  },
+  {
+    "query": "Who is the president of the new country that jointly established a Commission of Truth and Friendship with the country that Solor is a part of?",
+    "expected_answer": "Francisco Guterres",
+    "expected_sources": [
+      "MUSIQUE-00036",
+      "MUSIQUE-00027",
+      "MUSIQUE-00164"
+    ],
+    "expected_topics": [
+      "francisco",
+      "guterres"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "Solor >> country",
+      "#1 –Timor Leste Commission of Truth and Friendship >> country",
+      "who is the president of newly declared independent country #2"
+    ],
+    "num_hops": 3
+  },
+  {
+    "decomposed": true,
+    "query": "What is the meaning of the word that is also a majority religion in the area that became India when the country that release Ankahi was created in Arabic dictionary?",
+    "expected_answer": "the country of India",
+    "expected_sources": [
+      "MUSIQUE-00126",
+      "MUSIQUE-00165",
+      "MUSIQUE-00117"
+    ],
+    "expected_topics": [
+      "the",
+      "country",
+      "of",
+      "india"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "What country released Ankahi?",
+      "What was the majority religion in the area of British India that become India when #1 was created?",
+      "what is the meaning of #2 in arabic dictionary"
+    ],
+    "num_hops": 3
+  },
+  {
+    "query": "What is the Arabic dictionary meaning of the word referring to the majority religion in the area of British India, that became India when the country containing Barawal was formed?",
+    "expected_answer": "the country of India",
+    "expected_sources": [
+      "MUSIQUE-00126",
+      "MUSIQUE-00117",
+      "MUSIQUE-00166"
+    ],
+    "expected_topics": [
+      "the",
+      "country",
+      "of",
+      "india"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "Barawal >> country",
+      "What was the majority religion in the area of British India that become India when #1 was created?",
+      "what is the meaning of #2 in arabic dictionary"
+    ],
+    "num_hops": 3
+  },
+  {
+    "decomposed": true,
+    "query": "In the Arabic dictionary what is the meaning of the word that also refers to the majority religion in India when the country containing Attabad was created?",
+    "expected_answer": "the country of India",
+    "expected_sources": [
+      "MUSIQUE-00167",
+      "MUSIQUE-00117",
+      "MUSIQUE-00126"
+    ],
+    "expected_topics": [
+      "the",
+      "country",
+      "of",
+      "india"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "Attabad >> country",
+      "What was the majority religion in the area of British India that become India when #1 was created?",
+      "what is the meaning of #2 in arabic dictionary"
+    ],
+    "num_hops": 3
+  },
+  {
+    "decomposed": true,
+    "query": "what is the meaning of the word that is also the majority religion in the area that became India when the country where BCCI is based was created in the Arabic dictionary?",
+    "expected_answer": "the country of India",
+    "expected_sources": [
+      "MUSIQUE-00169",
+      "MUSIQUE-00126",
+      "MUSIQUE-00117"
+    ],
+    "expected_topics": [
+      "the",
+      "country",
+      "of",
+      "india"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "Where is the BCCI based?",
+      "What was the majority religion in the area of British India that become India when #1 was created?",
+      "what is the meaning of #2 in arabic dictionary"
+    ],
+    "num_hops": 3
+  },
+  {
+    "query": "What is the meaning in the Arabic Dictionary of the word for the majority religion in the area of British India that became India when Bedari's country was created?",
+    "expected_answer": "the country of India",
+    "expected_sources": [
+      "MUSIQUE-00126",
+      "MUSIQUE-00117",
+      "MUSIQUE-00172"
+    ],
+    "expected_topics": [
+      "the",
+      "country",
+      "of",
+      "india"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "What is the country Bedari is from?",
+      "What was the majority religion in the area of British India that become India when #1 was created?",
+      "what is the meaning of #2 in arabic dictionary"
+    ],
+    "num_hops": 3
+  },
+  {
+    "query": "In the Arabic dictionary, what's the meaning of the word for the majority religion in the area of British India that became India when Achh's country was created?",
+    "expected_answer": "the country of India",
+    "expected_sources": [
+      "MUSIQUE-00126",
+      "MUSIQUE-00174",
+      "MUSIQUE-00117"
+    ],
+    "expected_topics": [
+      "the",
+      "country",
+      "of",
+      "india"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "Achh >> country",
+      "What was the majority religion in the area of British India that become India when #1 was created?",
+      "what is the meaning of #2 in arabic dictionary"
+    ],
+    "num_hops": 3
+  },
+  {
+    "decomposed": true,
+    "query": "What is the meaning of the word that is also a majority religion in the area that became India when the country where Punial is located was created in the arabic dictionary?",
+    "expected_answer": "the country of India",
+    "expected_sources": [
+      "MUSIQUE-00126",
+      "MUSIQUE-00117",
+      "MUSIQUE-00175"
+    ],
+    "expected_topics": [
+      "the",
+      "country",
+      "of",
+      "india"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "Punial >> country",
+      "What was the majority religion in the area of British India that become India when #1 was created?",
+      "what is the meaning of #2 in arabic dictionary"
+    ],
+    "num_hops": 3
+  },
+  {
+    "decomposed": true,
+    "query": "What is the meaning of the word that is also the majority religion in the area that became India when the country where Kot Haibat is located was created in the Arabic dictionary?",
+    "expected_answer": "the country of India",
+    "expected_sources": [
+      "MUSIQUE-00176",
+      "MUSIQUE-00126",
+      "MUSIQUE-00117"
+    ],
+    "expected_topics": [
+      "the",
+      "country",
+      "of",
+      "india"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "Kot Haibat >> country",
+      "What was the majority religion in the area of British India that become India when #1 was created?",
+      "what is the meaning of #2 in arabic dictionary"
+    ],
+    "num_hops": 3
+  },
+  {
+    "query": "Who owns the record label where Neil Young's co-singer on Four Strong Winds records?",
+    "expected_answer": "Warner Music Group",
+    "expected_sources": [
+      "MUSIQUE-00181",
+      "MUSIQUE-00182",
+      "MUSIQUE-00185"
+    ],
+    "expected_topics": [
+      "warner",
+      "music",
+      "group"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "who sang four strong winds with neil young",
+      "#1 >> record label",
+      "who is the owner of #2"
+    ],
+    "num_hops": 3
+  },
+  {
+    "query": "Who owns the record label of the Till I Can Gain Control Again songwriter?",
+    "expected_answer": "Warner Music Group",
+    "expected_sources": [
+      "MUSIQUE-00181",
+      "MUSIQUE-00197",
+      "MUSIQUE-00204"
+    ],
+    "expected_topics": [
+      "warner",
+      "music",
+      "group"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "who wrote till i can gain control again",
+      "#1 >> record label",
+      "who is the owner of #2"
+    ],
+    "num_hops": 3
+  },
+  {
+    "query": "Who is the owner of the record label of the guitarist who performed on the Top Gun theme?",
+    "expected_answer": "Warner Music Group",
+    "expected_sources": [
+      "MUSIQUE-00181",
+      "MUSIQUE-00219",
+      "MUSIQUE-00222"
+    ],
+    "expected_topics": [
+      "warner",
+      "music",
+      "group"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "who played guitar on the top gun anthem",
+      "#1 >> record label",
+      "who is the owner of #2"
+    ],
+    "num_hops": 3
+  },
+  {
+    "query": "Who is the owner of the record label of the performer responsible for the album Just Got Started Lovin' You?",
+    "expected_answer": "Warner Music Group",
+    "expected_sources": [
+      "MUSIQUE-00237",
+      "MUSIQUE-00239",
+      "MUSIQUE-00181"
+    ],
+    "expected_topics": [
+      "warner",
+      "music",
+      "group"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "To which performer does the album Just Got Started Lovin' You belong?",
+      "#1 >> record label",
+      "who is the owner of #2"
+    ],
+    "num_hops": 3
+  },
+  {
+    "query": "Who is the owner of the record label that singer of the theme song from the movie Arthur belongs to?",
+    "expected_answer": "Warner Music Group",
+    "expected_sources": [
+      "MUSIQUE-00251",
+      "MUSIQUE-00252",
+      "MUSIQUE-00181"
+    ],
+    "expected_topics": [
+      "warner",
+      "music",
+      "group"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "who sang the theme song from the movie arthur",
+      "#1 >> record label",
+      "who is the owner of #2"
+    ],
+    "num_hops": 3
+  },
+  {
+    "query": "Who is the owner of the record label that the singer of I just got started lovin you belongs to?",
+    "expected_answer": "Warner Music Group",
+    "expected_sources": [
+      "MUSIQUE-00237",
+      "MUSIQUE-00181",
+      "MUSIQUE-00239"
+    ],
+    "expected_topics": [
+      "warner",
+      "music",
+      "group"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "who sings i just got started lovin you",
+      "#1 >> record label",
+      "who is the owner of #2"
+    ],
+    "num_hops": 3
+  },
+  {
+    "query": "What is the average yearly income for the same nationality as the author of The Feminine Mystique?",
+    "expected_answer": "$72,641",
+    "expected_sources": [
+      "MUSIQUE-00270",
+      "MUSIQUE-00281",
+      "MUSIQUE-00283"
+    ],
+    "expected_topics": [
+      "$72,641"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "who wrote the 1963 book the feminine mystique quizlet",
+      "What nationality was #1 ?",
+      "what is the average yearly income for an #2"
+    ],
+    "num_hops": 3
+  },
+  {
+    "query": "What is the average salary of a working citizen of the same nationality as the author of The Feminine Mystique?",
+    "expected_answer": "$59,039",
+    "expected_sources": [
+      "MUSIQUE-00281",
+      "MUSIQUE-00283",
+      "MUSIQUE-00270"
+    ],
+    "expected_topics": [
+      "$59,039"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "who wrote the 1963 book the feminine mystique quizlet",
+      "What nationality was #1 ?",
+      "what is the average salary of a working #2"
+    ],
+    "num_hops": 3
+  },
+  {
+    "query": "Who was a host of Who Wants to be a Millionaire who shares the same nationality as the author of The Feminine Mystique?",
+    "expected_answer": "Chris Harrison",
+    "expected_sources": [
+      "MUSIQUE-00270",
+      "MUSIQUE-00302",
+      "MUSIQUE-00283"
+    ],
+    "expected_topics": [
+      "chris",
+      "harrison"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "who wrote the 1963 book the feminine mystique quizlet",
+      "What nationality was #1 ?",
+      "#2 who wants to be a millionaire host"
+    ],
+    "num_hops": 3
+  },
+  {
+    "query": "What is the average salary of a working person of the same nationality as MacGruder and Loud's creator?",
+    "expected_answer": "$59,039",
+    "expected_sources": [
+      "MUSIQUE-00314",
+      "MUSIQUE-00281",
+      "MUSIQUE-00328"
+    ],
+    "expected_topics": [
+      "$59,039"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "MacGruder and Loud >> creator",
+      "What nationality was #1 ?",
+      "what is the average salary of a working #2"
+    ],
+    "num_hops": 3
+  },
+  {
+    "query": "What is the average yearly income for a person of the same nationality as the creator of MacGruder and Loud?",
+    "expected_answer": "$72,641",
+    "expected_sources": [
+      "MUSIQUE-00281",
+      "MUSIQUE-00314",
+      "MUSIQUE-00328"
+    ],
+    "expected_topics": [
+      "$72,641"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "MacGruder and Loud >> creator",
+      "What nationality was #1 ?",
+      "what is the average yearly income for an #2"
+    ],
+    "num_hops": 3
+  },
+  {
+    "query": "Who is the host of Who Wants to be a Millionaire in the country that MacGruder and Loud's creator is from?",
+    "expected_answer": "Chris Harrison",
+    "expected_sources": [
+      "MUSIQUE-00328",
+      "MUSIQUE-00302",
+      "MUSIQUE-00314"
+    ],
+    "expected_topics": [
+      "chris",
+      "harrison"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "MacGruder and Loud >> creator",
+      "What nationality was #1 ?",
+      "#2 who wants to be a millionaire host"
+    ],
+    "num_hops": 3
+  },
+  {
+    "query": "What is the average salary of a working person with the same nationality as the producer of The Wild Women of Chastity Gulch?",
+    "expected_answer": "$59,039",
+    "expected_sources": [
+      "MUSIQUE-00314",
+      "MUSIQUE-00354",
+      "MUSIQUE-00281"
+    ],
+    "expected_topics": [
+      "$59,039"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "The Wild Women of Chastity Gulch >> producer",
+      "What nationality was #1 ?",
+      "what is the average salary of a working #2"
+    ],
+    "num_hops": 3
+  },
+  {
+    "query": "Who is the host of Who Wants to be a Millionaire in the country that the producer of The Wild Women of Chastity Gulch is from?",
+    "expected_answer": "Chris Harrison",
+    "expected_sources": [
+      "MUSIQUE-00302",
+      "MUSIQUE-00354",
+      "MUSIQUE-00314"
+    ],
+    "expected_topics": [
+      "chris",
+      "harrison"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "The Wild Women of Chastity Gulch >> producer",
+      "What nationality was #1 ?",
+      "#2 who wants to be a millionaire host"
+    ],
+    "num_hops": 3
+  },
+  {
+    "query": "What is the average yearly income for someone with the same nationality as the producer of The Wild Women of Chastity Gulch?",
+    "expected_answer": "$72,641",
+    "expected_sources": [
+      "MUSIQUE-00281",
+      "MUSIQUE-00354",
+      "MUSIQUE-00314"
+    ],
+    "expected_topics": [
+      "$72,641"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "The Wild Women of Chastity Gulch >> producer",
+      "What nationality was #1 ?",
+      "what is the average yearly income for an #2"
+    ],
+    "num_hops": 3
+  },
+  {
+    "query": "What were the Genesis's advantages over the platform of Xexys?",
+    "expected_answer": "built on 16-bit architectures and offered improved graphics and sound",
+    "expected_sources": [
+      "MUSIQUE-00370",
+      "MUSIQUE-00374",
+      "MUSIQUE-00375"
+    ],
+    "expected_topics": [
+      "built",
+      "on",
+      "16-bit",
+      "architectures",
+      "and"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "Xexyz >> platform",
+      "What is the abbreviation of #1 ?",
+      "What were the Genesis's advantages over the #2 ?"
+    ],
+    "num_hops": 3
+  },
+  {
+    "query": "Who is the author of Growing Up this nationality of the creator MacGruder and Loud?",
+    "expected_answer": "Min Zhou",
+    "expected_sources": [
+      "MUSIQUE-00328",
+      "MUSIQUE-00314",
+      "MUSIQUE-00393"
+    ],
+    "expected_topics": [
+      "min",
+      "zhou"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "MacGruder and Loud >> creator",
+      "What nationality was #1 ?",
+      "Growing Up #2 >> author"
+    ],
+    "num_hops": 3
+  },
+  {
+    "query": "What were the Genesis's advantages over the platform of Pinball Quest?",
+    "expected_answer": "built on 16-bit architectures and offered improved graphics and sound",
+    "expected_sources": [
+      "MUSIQUE-00375",
+      "MUSIQUE-00370",
+      "MUSIQUE-00407"
+    ],
+    "expected_topics": [
+      "built",
+      "on",
+      "16-bit",
+      "architectures",
+      "and"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "Pinball Quest >> platform",
+      "What is the abbreviation of #1 ?",
+      "What were the Genesis's advantages over the #2 ?"
+    ],
+    "num_hops": 3
+  },
+  {
+    "query": "What were the Genesis's advantage over the platform of Pictionary?",
+    "expected_answer": "built on 16-bit architectures and offered improved graphics and sound",
+    "expected_sources": [
+      "MUSIQUE-00370",
+      "MUSIQUE-00375",
+      "MUSIQUE-00412"
+    ],
+    "expected_topics": [
+      "built",
+      "on",
+      "16-bit",
+      "architectures",
+      "and"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "Pictionary >> platform",
+      "What is the abbreviation of #1 ?",
+      "What were the Genesis's advantages over the #2 ?"
+    ],
+    "num_hops": 3
+  },
+  {
+    "query": "What were the Genesis's advantages over the system which had a three letter abbreviation and was also the platform for Star Voyager?",
+    "expected_answer": "built on 16-bit architectures and offered improved graphics and sound",
+    "expected_sources": [
+      "MUSIQUE-00414",
+      "MUSIQUE-00370",
+      "MUSIQUE-00375"
+    ],
+    "expected_topics": [
+      "built",
+      "on",
+      "16-bit",
+      "architectures",
+      "and"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "Star Voyager >> platform",
+      "What is the abbreviation of #1 ?",
+      "What were the Genesis's advantages over the #2 ?"
+    ],
+    "num_hops": 3
+  },
+  {
+    "query": "What were Genesis's advantages over the platform that plays Bigfoot?",
+    "expected_answer": "built on 16-bit architectures and offered improved graphics and sound",
+    "expected_sources": [
+      "MUSIQUE-00370",
+      "MUSIQUE-00425",
+      "MUSIQUE-00375"
+    ],
+    "expected_topics": [
+      "built",
+      "on",
+      "16-bit",
+      "architectures",
+      "and"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "Bigfoot >> platform",
+      "What is the abbreviation of #1 ?",
+      "What were the Genesis's advantages over the #2 ?"
+    ],
+    "num_hops": 3
+  },
+  {
+    "query": "What were the Genesis' advantages over the platform of Colorful Dragon?",
+    "expected_answer": "built on 16-bit architectures and offered improved graphics and sound",
+    "expected_sources": [
+      "MUSIQUE-00370",
+      "MUSIQUE-00430",
+      "MUSIQUE-00375"
+    ],
+    "expected_topics": [
+      "built",
+      "on",
+      "16-bit",
+      "architectures",
+      "and"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "Colorful Dragon >> platform",
+      "What is the abbreviation of #1 ?",
+      "What were the Genesis's advantages over the #2 ?"
+    ],
+    "num_hops": 3
+  },
+  {
+    "query": "What were the Genesis's advantages over the system Knight Rider came out on?",
+    "expected_answer": "built on 16-bit architectures and offered improved graphics and sound",
+    "expected_sources": [
+      "MUSIQUE-00440",
+      "MUSIQUE-00370",
+      "MUSIQUE-00375"
+    ],
+    "expected_topics": [
+      "built",
+      "on",
+      "16-bit",
+      "architectures",
+      "and"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "Knight Rider >> platform",
+      "What is the abbreviation of #1 ?",
+      "What were the Genesis's advantages over the #2 ?"
+    ],
+    "num_hops": 3
+  },
+  {
+    "query": "What were the Genesis's advantages over the platform that plays Drac's Night Out?",
+    "expected_answer": "built on 16-bit architectures and offered improved graphics and sound",
+    "expected_sources": [
+      "MUSIQUE-00375",
+      "MUSIQUE-00449",
+      "MUSIQUE-00370"
+    ],
+    "expected_topics": [
+      "built",
+      "on",
+      "16-bit",
+      "architectures",
+      "and"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "Drac's Night Out >> platform",
+      "What is the abbreviation of #1 ?",
+      "What were the Genesis's advantages over the #2 ?"
+    ],
+    "num_hops": 3
+  },
+  {
+    "query": "What were the Genesis's advantages over the platform of the game Nightshade?",
+    "expected_answer": "built on 16-bit architectures and offered improved graphics and sound",
+    "expected_sources": [
+      "MUSIQUE-00453",
+      "MUSIQUE-00370",
+      "MUSIQUE-00375"
+    ],
+    "expected_topics": [
+      "built",
+      "on",
+      "16-bit",
+      "architectures",
+      "and"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "Nightshade >> platform",
+      "What is the abbreviation of #1 ?",
+      "What were the Genesis's advantages over the #2 ?"
+    ],
+    "num_hops": 3
+  },
+  {
+    "query": "What were the Genesis's advantages over the platform in which Robodemons is played?",
+    "expected_answer": "built on 16-bit architectures and offered improved graphics and sound",
+    "expected_sources": [
+      "MUSIQUE-00370",
+      "MUSIQUE-00454",
+      "MUSIQUE-00375"
+    ],
+    "expected_topics": [
+      "built",
+      "on",
+      "16-bit",
+      "architectures",
+      "and"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "Robodemons >> platform",
+      "What is the abbreviation of #1 ?",
+      "What were the Genesis's advantages over the #2 ?"
+    ],
+    "num_hops": 3
+  },
+  {
+    "query": "What were the Genesis's advantages over the console whose three letter abbreviation stood for the full console name and also featured the game Yoshi?",
+    "expected_answer": "built on 16-bit architectures and offered improved graphics and sound",
+    "expected_sources": [
+      "MUSIQUE-00455",
+      "MUSIQUE-00370",
+      "MUSIQUE-00375"
+    ],
+    "expected_topics": [
+      "built",
+      "on",
+      "16-bit",
+      "architectures",
+      "and"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "Yoshi >> platform",
+      "What is the abbreviation of #1 ?",
+      "What were the Genesis's advantages over the #2 ?"
+    ],
+    "num_hops": 3
+  },
+  {
+    "query": "What were the Genesis's advantages over the platform that plays Sunman?",
+    "expected_answer": "built on 16-bit architectures and offered improved graphics and sound",
+    "expected_sources": [
+      "MUSIQUE-00375",
+      "MUSIQUE-00370",
+      "MUSIQUE-00458"
+    ],
+    "expected_topics": [
+      "built",
+      "on",
+      "16-bit",
+      "architectures",
+      "and"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "Sunman >> platform",
+      "What is the abbreviation of #1 ?",
+      "What were the Genesis's advantages over the #2 ?"
+    ],
+    "num_hops": 3
+  },
+  {
+    "query": "Who wrote a book about growing up in the same nationality as the man who produced The Wild Women of Chastity Gulch?",
+    "expected_answer": "Min Zhou",
+    "expected_sources": [
+      "MUSIQUE-00314",
+      "MUSIQUE-00354",
+      "MUSIQUE-00393"
+    ],
+    "expected_topics": [
+      "min",
+      "zhou"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "The Wild Women of Chastity Gulch >> producer",
+      "What nationality was #1 ?",
+      "Growing Up #2 >> author"
+    ],
+    "num_hops": 3
+  },
+  {
+    "query": "When was the last time Duane Courtney's team beat the winner of the 1894-95 FA Cup?",
+    "expected_answer": "1 December 2010",
+    "expected_sources": [
+      "MUSIQUE-00474",
+      "MUSIQUE-00476",
+      "MUSIQUE-00480"
+    ],
+    "expected_topics": [
+      "1",
+      "december",
+      "2010"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "1894–95 FA Cup >> winner",
+      "Duane Courtney >> member of sports team",
+      "when was the last time #2 beat #1"
+    ],
+    "num_hops": 3
+  },
+  {
+    "query": "When was the last time the team that Terry Twell was a member of beat the 194-95 winner of the FA Cup?",
+    "expected_answer": "1 December 2010",
+    "expected_sources": [
+      "MUSIQUE-00476",
+      "MUSIQUE-00474",
+      "MUSIQUE-00484"
+    ],
+    "expected_topics": [
+      "1",
+      "december",
+      "2010"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "1894–95 FA Cup >> winner",
+      "Terry Twell >> member of sports team",
+      "when was the last time #2 beat #1"
+    ],
+    "num_hops": 3
+  },
+  {
+    "query": "When was the last time George Hollis's team beat the 1894-95 FA Cup winner?",
+    "expected_answer": "1 December 2010",
+    "expected_sources": [
+      "MUSIQUE-00476",
+      "MUSIQUE-00485",
+      "MUSIQUE-00474"
+    ],
+    "expected_topics": [
+      "1",
+      "december",
+      "2010"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "1894–95 FA Cup >> winner",
+      "George Hollis >> member of sports team",
+      "when was the last time #2 beat #1"
+    ],
+    "num_hops": 3
+  },
+  {
+    "query": "When was the last time the sports team employing Winston Foster beat the 1894-95 FA Cup winner?",
+    "expected_answer": "1 December 2010",
+    "expected_sources": [
+      "MUSIQUE-00486",
+      "MUSIQUE-00474",
+      "MUSIQUE-00476"
+    ],
+    "expected_topics": [
+      "1",
+      "december",
+      "2010"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "1894–95 FA Cup >> winner",
+      "Winston Foster >> member of sports team",
+      "when was the last time #2 beat #1"
+    ],
+    "num_hops": 3
+  },
+  {
+    "query": "When was the last time Darren Carter's team beat the 1894-95 FA Cup winner?",
+    "expected_answer": "1 December 2010",
+    "expected_sources": [
+      "MUSIQUE-00474",
+      "MUSIQUE-00487",
+      "MUSIQUE-00476"
+    ],
+    "expected_topics": [
+      "1",
+      "december",
+      "2010"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "1894–95 FA Cup >> winner",
+      "Darren Carter >> member of sports team",
+      "when was the last time #2 beat #1"
+    ],
+    "num_hops": 3
+  },
+  {
+    "query": "When was the last time the team that Arthur James was a member of beat the 1894-95 FA cup winner?",
+    "expected_answer": "1 December 2010",
+    "expected_sources": [
+      "MUSIQUE-00474",
+      "MUSIQUE-00488",
+      "MUSIQUE-00476"
+    ],
+    "expected_topics": [
+      "1",
+      "december",
+      "2010"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "1894–95 FA Cup >> winner",
+      "Arthur James >> member of sports team",
+      "when was the last time #2 beat #1"
+    ],
+    "num_hops": 3
+  },
+  {
+    "query": "When was the last time the sports team having Trevor Dark as a member beat the winner of 1894–95 FA Cup?",
+    "expected_answer": "1 December 2010",
+    "expected_sources": [
+      "MUSIQUE-00474",
+      "MUSIQUE-00476",
+      "MUSIQUE-00489"
+    ],
+    "expected_topics": [
+      "1",
+      "december",
+      "2010"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "1894–95 FA Cup >> winner",
+      "Trevor Dark >> member of sports team",
+      "when was the last time #2 beat #1"
+    ],
+    "num_hops": 3
+  },
+  {
+    "query": "When was the last time the team that Malcolm Briggs was a member of beat the 1894-95 FA cup winner?",
+    "expected_answer": "1 December 2010",
+    "expected_sources": [
+      "MUSIQUE-00476",
+      "MUSIQUE-00474",
+      "MUSIQUE-00490"
+    ],
+    "expected_topics": [
+      "1",
+      "december",
+      "2010"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "1894–95 FA Cup >> winner",
+      "Malcolm Briggs >> member of sports team",
+      "when was the last time #2 beat #1"
+    ],
+    "num_hops": 3
+  },
+  {
+    "query": "When was the last time Jose Dominguez's sports team beat the winner of the 1894-95 FA Cup?",
+    "expected_answer": "1 December 2010",
+    "expected_sources": [
+      "MUSIQUE-00491",
+      "MUSIQUE-00474",
+      "MUSIQUE-00476"
+    ],
+    "expected_topics": [
+      "1",
+      "december",
+      "2010"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "1894–95 FA Cup >> winner",
+      "José Dominguez >> member of sports team",
+      "when was the last time #2 beat #1"
+    ],
+    "num_hops": 3
+  },
+  {
+    "query": "When was the last time the sports team that employs Joe Gallagher beat the winner of the 1894-95 FA Cup?",
+    "expected_answer": "1 December 2010",
+    "expected_sources": [
+      "MUSIQUE-00474",
+      "MUSIQUE-00476",
+      "MUSIQUE-00492"
+    ],
+    "expected_topics": [
+      "1",
+      "december",
+      "2010"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "1894–95 FA Cup >> winner",
+      "Joe Gallagher >> member of sports team",
+      "when was the last time #2 beat #1"
+    ],
+    "num_hops": 3
+  },
+  {
+    "query": "When was the last time the team employing Ronnie Morris beat the 1894-95 FA Cup winner?",
+    "expected_answer": "1 December 2010",
+    "expected_sources": [
+      "MUSIQUE-00474",
+      "MUSIQUE-00493",
+      "MUSIQUE-00476"
+    ],
+    "expected_topics": [
+      "1",
+      "december",
+      "2010"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "1894–95 FA Cup >> winner",
+      "Ronnie Morris >> member of sports team",
+      "when was the last time #2 beat #1"
+    ],
+    "num_hops": 3
+  },
+  {
+    "query": "When was the last time Ken Faulkner's team beat the 1894-95 FA Cup winner?",
+    "expected_answer": "1 December 2010",
+    "expected_sources": [
+      "MUSIQUE-00494",
+      "MUSIQUE-00476",
+      "MUSIQUE-00474"
+    ],
+    "expected_topics": [
+      "1",
+      "december",
+      "2010"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "1894–95 FA Cup >> winner",
+      "Ken Faulkner >> member of sports team",
+      "when was the last time #2 beat #1"
+    ],
+    "num_hops": 3
+  },
+  {
+    "query": "When was the last time the team Matthew Webb was a member of beat the winner of the 1894-95 FA Cup?",
+    "expected_answer": "1 December 2010",
+    "expected_sources": [
+      "MUSIQUE-00496",
+      "MUSIQUE-00476",
+      "MUSIQUE-00474"
+    ],
+    "expected_topics": [
+      "1",
+      "december",
+      "2010"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "1894–95 FA Cup >> winner",
+      "Matthew Webb >> member of sports team",
+      "when was the last time #2 beat #1"
+    ],
+    "num_hops": 3
+  },
+  {
+    "query": "When was the last time the sports team Alan O'Neil was a member of beat the winner of the 1894-95 FA cup?",
+    "expected_answer": "1 December 2010",
+    "expected_sources": [
+      "MUSIQUE-00474",
+      "MUSIQUE-00476",
+      "MUSIQUE-00497"
+    ],
+    "expected_topics": [
+      "1",
+      "december",
+      "2010"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "1894–95 FA Cup >> winner",
+      "Alan O'Neill >> member of sports team",
+      "when was the last time #2 beat #1"
+    ],
+    "num_hops": 3
+  },
+  {
+    "query": "When was the last time the team who Bernard Lowe was a member of beat the winner of the 1894-95 FA Cup?",
+    "expected_answer": "1 December 2010",
+    "expected_sources": [
+      "MUSIQUE-00498",
+      "MUSIQUE-00476",
+      "MUSIQUE-00474"
+    ],
+    "expected_topics": [
+      "1",
+      "december",
+      "2010"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "1894–95 FA Cup >> winner",
+      "Bernard Lowe >> member of sports team",
+      "when was the last time #2 beat #1"
+    ],
+    "num_hops": 3
+  },
+  {
+    "query": "When was the last time Krystian Pearce's sports team beat the winner of the 1894-95 FA Cup?",
+    "expected_answer": "1 December 2010",
+    "expected_sources": [
+      "MUSIQUE-00476",
+      "MUSIQUE-00499",
+      "MUSIQUE-00474"
+    ],
+    "expected_topics": [
+      "1",
+      "december",
+      "2010"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "1894–95 FA Cup >> winner",
+      "Krystian Pearce >> member of sports team",
+      "when was the last time #2 beat #1"
+    ],
+    "num_hops": 3
+  },
+  {
+    "query": "When was the last time Johnny Newman's team beat the 1894–95 FA Cup winner?",
+    "expected_answer": "1 December 2010",
+    "expected_sources": [
+      "MUSIQUE-00500",
+      "MUSIQUE-00476",
+      "MUSIQUE-00474"
+    ],
+    "expected_topics": [
+      "1",
+      "december",
+      "2010"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "1894–95 FA Cup >> winner",
+      "Johnny Newman >> member of sports team",
+      "when was the last time #2 beat #1"
+    ],
+    "num_hops": 3
+  },
+  {
+    "query": "When was the last time Gary Rowett's team beat the 1894-95 FA Cup winner?",
+    "expected_answer": "1 December 2010",
+    "expected_sources": [
+      "MUSIQUE-00501",
+      "MUSIQUE-00476",
+      "MUSIQUE-00474"
+    ],
+    "expected_topics": [
+      "1",
+      "december",
+      "2010"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "1894–95 FA Cup >> winner",
+      "Gary Rowett >> member of sports team",
+      "when was the last time #2 beat #1"
+    ],
+    "num_hops": 3
+  },
+  {
+    "query": "When was the last time Tony Richard's team beat the 1894-95 FA Cup Winner?",
+    "expected_answer": "1 December 2010",
+    "expected_sources": [
+      "MUSIQUE-00474",
+      "MUSIQUE-00476",
+      "MUSIQUE-00502"
+    ],
+    "expected_topics": [
+      "1",
+      "december",
+      "2010"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "1894–95 FA Cup >> winner",
+      "Tony Richards >> member of sports team",
+      "when was the last time #2 beat #1"
+    ],
+    "num_hops": 3
+  },
+  {
+    "query": "When was the last time Cian Hughton's team beat the 1894–95 FA Cup winner?",
+    "expected_answer": "1 December 2010",
+    "expected_sources": [
+      "MUSIQUE-00476",
+      "MUSIQUE-00503",
+      "MUSIQUE-00474"
+    ],
+    "expected_topics": [
+      "1",
+      "december",
+      "2010"
+    ],
+    "query_type": "multi_part",
+    "difficulty": "hard",
+    "notes": "MusiQue: Requires 3 hops",
+    "decomposition_steps": [
+      "1894–95 FA Cup >> winner",
+      "Cian Hughton >> member of sports team",
+      "when was the last time #2 beat #1"
+    ],
+    "num_hops": 3
+  }
+]

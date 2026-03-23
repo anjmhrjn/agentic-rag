@@ -53,14 +53,14 @@ class AdaptiveRAGOrchestrator:
         elif self.kb_size == "medium":  # 500-5000 docs
             self.HIGH_CONFIDENCE = 0.70
             self.LOW_CONFIDENCE = 0.45
-            self.USE_DOC_TYPE_FILTER = True
+            self.USE_DOC_TYPE_FILTER = False
             self.MIN_SIMILARITY = 0.6
             self.DEFAULT_TOP_K = 7
             
         else:  # large: > 5000 docs
             self.HIGH_CONFIDENCE = 0.75
             self.LOW_CONFIDENCE = 0.5
-            self.USE_DOC_TYPE_FILTER = True
+            self.USE_DOC_TYPE_FILTER = False
             self.MIN_SIMILARITY = 0.7
             self.DEFAULT_TOP_K = 10
         

@@ -67,8 +67,12 @@ if __name__ == "__main__":
     # output_file = "data/processed_chunks/chunks.json"
 
     # medium KB
-    input_dir = "data/hotpotqa"
-    output_file = "data/processed_chunks/hotpotqa_chunks.json"
+    # input_dir = "data/hotpotqa"
+    # output_file = "data/processed_chunks/hotpotqa_chunks.json"
+    
+    # musique KB
+    input_dir = "data/musique"
+    output_file = "data/processed_chunks/musique_chunks.json"
 
     process_docs(
         input_dir=input_dir,

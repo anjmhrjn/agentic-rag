@@ -5,7 +5,7 @@ from retriever.vector_retriever import VectorRetriever
 from llm.local_llm import LocalLLM
 from evaluation.benchmark import RAGBenchmark
 from evaluation.compare import compare_configurations
-from evaluation.test_dataset import get_test_subset
+from evaluation.test_dataset import get_test_subset, get_test_dataset
 
 logging.basicConfig(
     level=logging.INFO,
@@ -34,16 +34,16 @@ if __name__ == "__main__":
     print("Starting RAG System Evaluation\n")
     
     # Option 1: Quick single benchmark
-    print("Running single configuration benchmark...")
-    orchestrator = create_orchestrator(use_decomposition=True, use_reflection=True)
-    benchmark = RAGBenchmark(orchestrator)
-    test_dataset = get_test_subset(query_type="multi_part")
-    aggregate = benchmark.run_benchmark(test_dataset)
-    benchmark.print_summary(aggregate)
+    # print("Running single configuration benchmark...")
+    # orchestrator = create_orchestrator(use_decomposition=True, use_reflection=True)
+    # benchmark = RAGBenchmark(orchestrator)
+    # test_dataset = get_test_dataset()
+    # aggregate = benchmark.run_benchmark(test_dataset)
+    # benchmark.print_summary(aggregate)
     
     # Option 2: Compare all configurations
-    # print("Comparing all configurations...")
-    # results = compare_configurations(create_orchestrator)
+    print("Comparing all configurations...")
+    results = compare_configurations(create_orchestrator)
 """
 ## Expected Output
 ================================================================================

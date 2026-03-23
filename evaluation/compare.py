@@ -27,11 +27,6 @@ def compare_configurations(orchestrator_factory):
             "use_reflection": False
         },
         {
-            "name": "With Reflection Only",
-            "use_decomposition": False,
-            "use_reflection": True
-        },
-        {
             "name": "Full Agentic (decomposition + reflection)",
             "use_decomposition": True,
             "use_reflection": True
