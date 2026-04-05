@@ -233,7 +233,7 @@ class AdaptiveRAGOrchestrator:
         context = self._format_context(chunks)
         
         prompt = f"""<|begin_of_text|><|start_header_id|>system<|end_header_id|>
-You are a DevOps expert. Answer this specific sub-question concisely based on documentation.
+Answer this specific sub-question concisely based on documentation.
 Output ONLY valid JSON: {{"answer": "concise answer with [DOC_ID] citations"}}
 
 CRITICAL CITATION RULES:
@@ -286,7 +286,7 @@ Provide a focused answer. Output format:
         ])
         
         prompt = f"""<|begin_of_text|><|start_header_id|>system<|end_header_id|>
-You are a DevOps expert. Synthesize multiple sub-answers into one comprehensive answer.
+Synthesize multiple sub-answers into one comprehensive answer.
 Combine information logically, maintain all citations, avoid repetition.
 Output ONLY valid JSON: {{"answer": "comprehensive synthesized answer"}}
 <|eot_id|><|start_header_id|>user<|end_header_id|>
@@ -368,7 +368,7 @@ Output format:
                     # Add guidance based on issues
                     issues_text = "; ".join(evaluation['issues'])
                     prompt = f"""<|begin_of_text|><|start_header_id|>system<|end_header_id|>
-You are a DevOps expert. Synthesize multiple sub-answers into one comprehensive answer.
+Synthesize multiple sub-answers into one comprehensive answer.
 
 IMPORTANT: Previous synthesis had issues: {issues_text}
 Address these issues in your synthesis.
@@ -681,7 +681,7 @@ Synthesize carefully, addressing the issues mentioned. Output format:
         
         prompt = f"""<|begin_of_text|><|start_header_id|>system<|end_header_id|>
 
-You are a DevOps expert. Answer questions based on documentation.
+Answer questions based on documentation.
 Output ONLY valid JSON in this EXACT format:
 {{"answer": "your detailed answer here with [DOC_ID] citations"}}
 
@@ -722,7 +722,7 @@ Output format:
         
         prompt = f"""<|begin_of_text|><|start_header_id|>system<|end_header_id|>
 
-You are a DevOps expert. For complex questions, provide comprehensive answers.
+For complex questions, provide comprehensive answers.
 Output ONLY valid JSON in this EXACT format:
 {{"answer": "your detailed answer with [DOC_ID] citations"}}
 
@@ -760,7 +760,7 @@ Provide a comprehensive answer. Output format:
         """Build prompt when no context is available"""
         prompt = f"""<|begin_of_text|><|start_header_id|>system<|end_header_id|>
 
-You are a DevOps assistant. No documentation is available.
+No documentation is available.
 Provide general DevOps knowledge.
 Output ONLY valid JSON in this EXACT format:
 {{"answer": "your general answer based on best practices"}}

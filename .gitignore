@@ -63,3 +63,6 @@ data/hotpotqa
 
 # musique rag docs
 data/musique
+
+# analysis results
+analysis/

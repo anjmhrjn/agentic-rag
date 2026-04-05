@@ -1,4 +1,4 @@
-Classify this DevOps query into 1-4 relevant document types from this list:
+Classify this query into 1-4 relevant document types from this list:
 {ALLOWED_DOC_TYPES}
 
 Examples:
